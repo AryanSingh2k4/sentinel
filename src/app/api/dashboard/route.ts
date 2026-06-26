@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/agents/base';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -20,15 +22,12 @@ export async function GET() {
         started_at,
         targets ( domain )
       `)
-      .order('started_at', { ascending: false })
-      .limit(5);
+      .order('started_at', { ascending: false });
 
     // Fetch discovered technologies
     const { data: technologies } = await supabaseAdmin
       .from('discovered_technologies')
-      .select('id, technology, confidence, created_at')
-      .order('created_at', { ascending: false })
-      .limit(5);
+      .select('id, technology, confidence');
 
     return NextResponse.json({
       scans: scans || [],

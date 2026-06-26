@@ -254,7 +254,12 @@ export default function Dashboard() {
                         <td className="px-6 py-4 font-mono text-[12px] text-[#898989]" title={scan.id}>{scan.id.substring(0, 8)}...</td>
                         <td className="px-6 py-4 text-[#fafafa]">{domainName}</td>
                         <td className="px-6 py-4">
-                          <span className="bg-[#242424] border border-[#393939] text-[#3ecf8e] px-2 py-0.5 rounded-[6px] text-[12px] font-mono">
+                          <span className={`px-2 py-0.5 rounded-[6px] text-[12px] font-mono border ${
+                            scan.status === 'FAILED' ? 'bg-[#ef4444]/10 border-[#ef4444]/20 text-[#ef4444]' :
+                            scan.status === 'QUEUED' ? 'bg-[#242424] border-[#393939] text-[#898989]' :
+                            scan.status === 'COMPLETED' ? 'bg-[#3ecf8e]/10 border-[#3ecf8e]/20 text-[#3ecf8e]' :
+                            'bg-[#fbbf24]/10 border-[#fbbf24]/20 text-[#fbbf24]'
+                          }`}>
                             {scan.status || 'QUEUED'}
                           </span>
                         </td>

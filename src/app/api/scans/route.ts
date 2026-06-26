@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     // Insert the new scan into Supabase database using service role (admin) to bypass RLS
     const { data: scan, error: scanError } = await supabaseAdmin.from('scans').insert({
         target_id: targetId,
-        status: 'queued'
+        status: 'QUEUED'
     }).select().single();
 
     if (scanError) throw scanError;

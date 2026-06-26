@@ -33,7 +33,9 @@ export async function runHttpx(urls: string[], onResult: (result: HttpxResult) =
     // -sc: status code
     // -title: page title
     // -td: tech detect
-    const httpx = spawn(httpxPath, ['-l', tempFilePath, '-json', '-silent', '-sc', '-title', '-td']);
+    const httpx = spawn(httpxPath, ['-l', tempFilePath, '-json', '-silent', '-sc', '-title', '-td'], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
 
     const rl = readline.createInterface({
       input: httpx.stdout,
