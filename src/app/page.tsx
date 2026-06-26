@@ -48,24 +48,29 @@ export default function Dashboard() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const fetchDashboardData = async () => {
+    try {
+      const res = await fetch('/api/dashboard');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.scans) setScans(data.scans);
+        if (data.technologies) setTechFindings(data.technologies);
+      }
+    } catch (err) {
+      console.error("Failed to fetch dashboard data", err);
+    }
+  };
+
   // Fetch real-time dashboard data
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const res = await fetch('/api/dashboard');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.scans) setScans(data.scans);
-          if (data.technologies) setTechFindings(data.technologies);
-        }
-      } catch (err) {
-        console.error("Failed to fetch dashboard data", err);
-      }
-    };
-
     fetchDashboardData();
 
-    // Supabase Realtime Subscription
+    // Set up polling interval to keep dashboard fresh every 3 seconds
+    const interval = setInterval(() => {
+      fetchDashboardData();
+    }, 3000);
+
+    // Supabase Realtime Subscription (Might be blocked by RLS, but keeping as fallback)
     const supabase = createClient();
     const channel = supabase.channel('dashboard_realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'scans' }, () => {
@@ -77,6 +82,7 @@ export default function Dashboard() {
       .subscribe();
 
     return () => {
+      clearInterval(interval);
       supabase.removeChannel(channel);
     };
   }, []);
@@ -358,6 +364,7 @@ export default function Dashboard() {
                       });
                       if (res.ok) {
                         setScanModalOpen(false);
+                        fetchDashboardData(); // Instantly refresh the table
                       } else {
                         alert("Failed to initiate scan.");
                       }
