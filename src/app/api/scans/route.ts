@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { scanQueue } from '@/lib/queue/bull';
 import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/agents/base';
 
 export async function POST(req: Request) {
   try {
@@ -22,13 +23,13 @@ export async function POST(req: Request) {
     
     if (user) {
         // Find operator to link the target
-        const { data: operator } = await supabase.from('operators').select('id').eq('auth_user_id', user.id).single();
+        const { data: operator } = await supabaseAdmin.from('operators').select('id').eq('auth_user_id', user.id).single();
         if (operator) {
             // Check if target already exists, else create it
-            let { data: existingTarget } = await supabase.from('targets').select('id').eq('domain', target).single();
+            let { data: existingTarget } = await supabaseAdmin.from('targets').select('id').eq('domain', target).single();
             
             if (!existingTarget) {
-                const { data: newTarget, error: targetError } = await supabase.from('targets').insert({
+                const { data: newTarget, error: targetError } = await supabaseAdmin.from('targets').insert({
                     domain: target,
                     base_url: `https://${target}`,
                     operator_id: operator.id
@@ -40,8 +41,8 @@ export async function POST(req: Request) {
         }
     }
 
-    // Insert the new scan into Supabase database
-    const { data: scan, error: scanError } = await supabase.from('scans').insert({
+    // Insert the new scan into Supabase database using service role (admin) to bypass RLS
+    const { data: scan, error: scanError } = await supabaseAdmin.from('scans').insert({
         target_id: targetId,
         status: 'queued'
     }).select().single();

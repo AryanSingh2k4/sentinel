@@ -1,6 +1,6 @@
 import { Queue, Worker, Job } from 'bullmq';
 import { redis } from './redis';
-import { ReconAgent } from '../agents/recon-agent';
+import { ReconAgent } from '../agents/recon';
 
 export const SCAN_QUEUE_NAME = 'scan-engine';
 

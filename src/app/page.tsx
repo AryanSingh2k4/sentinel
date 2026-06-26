@@ -20,6 +20,11 @@ import { createClient } from '@/lib/supabase/client';
 export default function Dashboard() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [scans, setScans] = useState<any[]>([]);
+  const [techFindings, setTechFindings] = useState<any[]>([]);
+  const [scanModalOpen, setScanModalOpen] = useState(false);
+  const [scanTarget, setScanTarget] = useState('');
+  const [scanLoading, setScanLoading] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -41,6 +46,39 @@ export default function Dashboard() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch real-time dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const res = await fetch('/api/dashboard');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.scans) setScans(data.scans);
+          if (data.technologies) setTechFindings(data.technologies);
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard data", err);
+      }
+    };
+
+    fetchDashboardData();
+
+    // Supabase Realtime Subscription
+    const supabase = createClient();
+    const channel = supabase.channel('dashboard_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scans' }, () => {
+        fetchDashboardData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'discovered_technologies' }, () => {
+        fetchDashboardData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -122,7 +160,13 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-[24px] font-normal text-[#fafafa] tracking-tight">Security Overview</h1>
-          <button className="bg-[#3ecf8e] hover:bg-[#72e3ad] text-[#121212] rounded-[8px] h-[36px] px-4 text-[14px] font-medium transition-colors">
+          <button 
+            onClick={() => {
+              setScanTarget('');
+              setScanModalOpen(true);
+            }}
+            className="bg-[#3ecf8e] hover:bg-[#72e3ad] text-[#121212] rounded-[8px] h-[36px] px-4 text-[14px] font-medium transition-colors"
+          >
             New Scan
           </button>
         </div>
@@ -134,8 +178,8 @@ export default function Dashboard() {
               <h3 className="text-[14px] font-medium text-[#b4b4b4]">Active Scans</h3>
               <Activity className="h-4 w-4 text-[#898989]" />
             </div>
-            <div className="text-[32px] font-normal tracking-tight text-[#fafafa] mb-1 leading-none">12</div>
-            <p className="text-[14px] text-[#898989]">+2 from yesterday</p>
+            <div className="text-[32px] font-normal tracking-tight text-[#fafafa] mb-1 leading-none">0</div>
+            <p className="text-[14px] text-[#898989]">No active scans</p>
           </div>
 
           <div className="bg-[#171717] border border-[#2e2e2e] rounded-[12px] p-6">
@@ -143,8 +187,8 @@ export default function Dashboard() {
               <h3 className="text-[14px] font-medium text-[#b4b4b4]">Critical Findings</h3>
               <AlertTriangle className="h-4 w-4 text-[#f87171]" />
             </div>
-            <div className="text-[32px] font-normal tracking-tight text-[#f87171] mb-1 leading-none">4</div>
-            <p className="text-[14px] text-[#898989]">Requires immediate review</p>
+            <div className="text-[32px] font-normal tracking-tight text-[#f87171] mb-1 leading-none">0</div>
+            <p className="text-[14px] text-[#898989]">No critical findings</p>
           </div>
 
           <div className="bg-[#171717] border border-[#2e2e2e] rounded-[12px] p-6">
@@ -152,8 +196,8 @@ export default function Dashboard() {
               <h3 className="text-[14px] font-medium text-[#b4b4b4]">Pending Reviews</h3>
               <Clock className="h-4 w-4 text-[#fbbf24]" />
             </div>
-            <div className="text-[32px] font-normal tracking-tight text-[#fafafa] mb-1 leading-none">28</div>
-            <p className="text-[14px] text-[#898989]">Findings await validation</p>
+            <div className="text-[32px] font-normal tracking-tight text-[#fafafa] mb-1 leading-none">0</div>
+            <p className="text-[14px] text-[#898989]">All findings validated</p>
           </div>
 
           <div className="bg-[#171717] border border-[#2e2e2e] rounded-[12px] p-6">
@@ -161,7 +205,7 @@ export default function Dashboard() {
               <h3 className="text-[14px] font-medium text-[#b4b4b4]">Recent Reports</h3>
               <FileText className="h-4 w-4 text-[#898989]" />
             </div>
-            <div className="text-[32px] font-normal tracking-tight text-[#fafafa] mb-1 leading-none">3</div>
+            <div className="text-[32px] font-normal tracking-tight text-[#fafafa] mb-1 leading-none">0</div>
             <p className="text-[14px] text-[#898989]">Generated this week</p>
           </div>
         </div>
@@ -185,22 +229,33 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="text-[#b4b4b4]">
-                  {[
-                    { id: "SCN-8421", target: "api.production.com", status: "RECON", progress: "45%" },
-                    { id: "SCN-8422", target: "auth.staging.net", status: "ATTACK", progress: "82%" },
-                    { id: "SCN-8423", target: "cdn.assets.io", status: "QUEUED", progress: "0%" },
-                  ].map((scan) => (
-                    <tr key={scan.id} className="border-b border-[#2e2e2e] last:border-0 hover:bg-[#242424] transition-colors">
-                      <td className="px-6 py-4 font-mono text-[12px] text-[#898989]">{scan.id}</td>
-                      <td className="px-6 py-4 text-[#fafafa]">{scan.target}</td>
-                      <td className="px-6 py-4">
-                        <span className="bg-[#242424] border border-[#393939] text-[#b4b4b4] px-2 py-0.5 rounded-[6px] text-[12px] font-mono">
-                          {scan.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right font-mono text-[12px] text-[#fafafa]">{scan.progress}</td>
-                    </tr>
-                  ))}
+                  {scans.length === 0 && (
+                    <tr><td colSpan={4} className="px-6 py-4 text-center text-[#898989]">No active scans found.</td></tr>
+                  )}
+                  {scans.map((scan) => {
+                    // Extract domain from nested targets object (or array)
+                    let domainName = 'Unknown Target';
+                    if (scan.targets) {
+                      if (Array.isArray(scan.targets) && scan.targets.length > 0) {
+                        domainName = scan.targets[0].domain || 'Unknown Target';
+                      } else if (scan.targets.domain) {
+                        domainName = scan.targets.domain;
+                      }
+                    }
+
+                    return (
+                      <tr key={scan.id} className="border-b border-[#2e2e2e] last:border-0 hover:bg-[#242424] transition-colors">
+                        <td className="px-6 py-4 font-mono text-[12px] text-[#898989]" title={scan.id}>{scan.id.substring(0, 8)}...</td>
+                        <td className="px-6 py-4 text-[#fafafa]">{domainName}</td>
+                        <td className="px-6 py-4">
+                          <span className="bg-[#242424] border border-[#393939] text-[#3ecf8e] px-2 py-0.5 rounded-[6px] text-[12px] font-mono">
+                            {scan.status || 'QUEUED'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right font-mono text-[12px] text-[#fafafa]">-</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -209,33 +264,34 @@ export default function Dashboard() {
           {/* Critical Findings Table */}
           <div className="bg-[#171717] border border-[#2e2e2e] rounded-[12px] overflow-hidden">
             <div className="px-6 py-4 border-b border-[#2e2e2e]">
-              <h3 className="text-[14px] font-medium text-[#fafafa]">Critical Findings</h3>
+              <h3 className="text-[14px] font-medium text-[#fafafa]">Discovered Technologies</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[14px]">
                 <thead>
                   <tr className="border-b border-[#2e2e2e] text-[#898989]">
-                    <th className="px-6 py-3 font-medium font-sans">ID</th>
-                    <th className="px-6 py-3 font-medium font-sans">Severity</th>
-                    <th className="px-6 py-3 font-medium font-sans">Vulnerability</th>
+                    <th className="px-6 py-3 font-medium font-sans">Tech ID</th>
+                    <th className="px-6 py-3 font-medium font-sans">Technology</th>
+                    <th className="px-6 py-3 font-medium font-sans">Confidence</th>
                     <th className="px-6 py-3 font-medium font-sans text-right">Detected</th>
                   </tr>
                 </thead>
                 <tbody className="text-[#b4b4b4]">
-                  {[
-                    { id: "FND-091", sev: "CRITICAL", type: "CWE-89: SQL Injection", time: "2h ago" },
-                    { id: "FND-090", sev: "CRITICAL", type: "Exposed API Key", time: "5h ago" },
-                    { id: "FND-088", sev: "HIGH", type: "CWE-79: Reflected XSS", time: "1d ago" },
-                  ].map((finding) => (
+                  {techFindings.length === 0 && (
+                    <tr><td colSpan={4} className="px-6 py-4 text-center text-[#898989]">No technologies discovered yet.</td></tr>
+                  )}
+                  {techFindings.map((finding) => (
                     <tr key={finding.id} className="border-b border-[#2e2e2e] last:border-0 hover:bg-[#242424] transition-colors">
-                      <td className="px-6 py-4 font-mono text-[12px] text-[#898989]">{finding.id}</td>
+                      <td className="px-6 py-4 font-mono text-[12px] text-[#898989]" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
+                      <td className="px-6 py-4 font-mono text-[12px] text-[#fafafa]">{finding.technology}</td>
                       <td className="px-6 py-4">
-                        <span className={`text-[12px] font-medium ${finding.sev === 'CRITICAL' ? 'text-[#f87171]' : 'text-[#fbbf24]'}`}>
-                          {finding.sev}
+                        <span className="text-[12px] font-medium text-[#fbbf24]">
+                          {finding.confidence}%
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-mono text-[12px] text-[#fafafa]">{finding.type}</td>
-                      <td className="px-6 py-4 text-right text-[12px] text-[#898989]">{finding.time}</td>
+                      <td className="px-6 py-4 text-right text-[12px] text-[#898989]">
+                        {finding.created_at ? new Date(finding.created_at).toLocaleTimeString() : 'Just now'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -246,6 +302,89 @@ export default function Dashboard() {
         </div>
 
       </main>
+
+      {/* Custom Scan Modal */}
+      {scanModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-[440px] bg-[#171717] border border-[#2e2e2e] rounded-[12px] shadow-2xl p-6 relative">
+            <button 
+              onClick={() => setScanModalOpen(false)}
+              className="absolute top-4 right-4 text-[#898989] hover:text-[#fafafa] transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+            
+            <h2 className="text-[18px] font-medium text-[#fafafa] mb-2">Initiate New Scan</h2>
+            <p className="text-[14px] text-[#898989] mb-6">Enter a target domain or URL to launch the reconnaissance and attack sequence.</p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[13px] font-medium text-[#b4b4b4] mb-1.5">Target</label>
+                <input 
+                  autoFocus
+                  type="text" 
+                  value={scanTarget}
+                  onChange={(e) => setScanTarget(e.target.value)}
+                  placeholder="e.g. hackerone.com"
+                  className="w-full h-[40px] px-3 bg-[#121212] border border-[#393939] text-[#fafafa] text-[14px] rounded-[8px] focus:outline-none focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e] transition-all placeholder-[#898989]"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && scanTarget.trim() && !scanLoading) {
+                      document.getElementById('start-scan-btn')?.click();
+                    }
+                  }}
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3 pt-2">
+                <button 
+                  onClick={() => setScanModalOpen(false)}
+                  disabled={scanLoading}
+                  className="px-4 h-[36px] text-[14px] font-medium text-[#b4b4b4] hover:text-[#fafafa] transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button 
+                  id="start-scan-btn"
+                  disabled={!scanTarget.trim() || scanLoading}
+                  onClick={async () => {
+                    setScanLoading(true);
+                    try {
+                      const res = await fetch('/api/scans', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ target: scanTarget.trim() })
+                      });
+                      if (res.ok) {
+                        setScanModalOpen(false);
+                      } else {
+                        alert("Failed to initiate scan.");
+                      }
+                    } catch (e) {
+                      console.error(e);
+                      alert("Error initiating scan.");
+                    } finally {
+                      setScanLoading(false);
+                    }
+                  }}
+                  className="bg-[#3ecf8e] hover:bg-[#72e3ad] text-[#121212] rounded-[8px] h-[36px] px-4 text-[14px] font-medium transition-colors disabled:opacity-50 flex items-center"
+                >
+                  {scanLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[#121212]" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Starting...
+                    </>
+                  ) : 'Start Scan'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

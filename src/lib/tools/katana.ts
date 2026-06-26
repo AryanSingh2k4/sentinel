@@ -19,7 +19,7 @@ export async function runKatana(target: string, onResult: (result: KatanaResult)
     const katanaPath = path.resolve(process.cwd(), 'bin', 'katana.exe');
     
     // '-j' for JSON output, '-jc' to include request/response data if needed, '-silent' for no banner
-    const katana = spawn(`"${katanaPath}"`, ['-u', target, '-j', '-silent'], { shell: true });
+    const katana = spawn(katanaPath, ['-u', target, '-j', '-silent']);
 
     const rl = readline.createInterface({
       input: katana.stdout,
