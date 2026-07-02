@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const router = useRouter();
@@ -67,6 +68,7 @@ export default function LoginPage() {
 
     setLoading(true);
     setError(null);
+    setSuccessMsg(null);
 
     const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
@@ -75,7 +77,8 @@ export default function LoginPage() {
       options: {
         data: {
           full_name: name,
-        }
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       }
     });
 
@@ -83,14 +86,8 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      if (data.user) {
-        await supabase.from('operators').insert({
-          auth_user_id: data.user.id,
-          email: data.user.email || email,
-        });
-      }
-      router.push('/');
-      router.refresh();
+      setSuccessMsg('Registration successful! Please check your email to verify your account.');
+      setLoading(false);
     }
   };
 
@@ -178,6 +175,12 @@ export default function LoginPage() {
           {error && (
             <div className="text-[13px] font-medium text-[#f87171] bg-[#7f1d1d]/20 border border-[#991b1b]/30 rounded-[6px] p-2 text-center">
               {error}
+            </div>
+          )}
+
+          {successMsg && (
+            <div className="text-[13px] font-medium text-[#3ecf8e] bg-[#3ecf8e]/10 border border-[#3ecf8e]/30 rounded-[6px] p-2 text-center">
+              {successMsg}
             </div>
           )}
 
