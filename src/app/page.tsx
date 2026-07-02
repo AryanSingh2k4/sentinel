@@ -103,7 +103,7 @@ export default function Dashboard() {
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-2">
                 <Shield className="h-5 w-5 text-[#3ecf8e]" strokeWidth={2} />
-                <span className="font-medium tracking-tight text-[#fafafa]">Sentinel AI</span>
+                <span className="font-medium tracking-tight text-[#fafafa]">Sentinel</span>
               </div>
               <div className="hidden md:flex space-x-6 text-[14px] font-medium">
                 <Link href="#" className="text-[#fafafa] border-b-2 border-[#3ecf8e] py-[15px]">Dashboard</Link>

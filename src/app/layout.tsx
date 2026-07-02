@@ -13,7 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sentinel AI",
+  title: "Sentinel",
   description: "Autonomous Security Operations Platform",
 };
 
