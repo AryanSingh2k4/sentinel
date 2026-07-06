@@ -29,9 +29,16 @@ export async function GET() {
       .from('discovered_technologies')
       .select('id, technology, confidence');
 
+    // Fetch candidate findings
+    const { data: findings } = await supabaseAdmin
+      .from('candidate_findings')
+      .select('id, title, severity, confidence, reasoning, created_at')
+      .order('created_at', { ascending: false });
+
     return NextResponse.json({
       scans: scans || [],
-      technologies: technologies || []
+      technologies: technologies || [],
+      findings: findings || []
     });
   } catch (error) {
     console.error('Dashboard fetch error:', error);
