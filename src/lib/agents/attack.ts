@@ -48,8 +48,10 @@ export class AttackAgent extends BaseAgent {
 
       await this.logEvent('NUCLEI_FINISHED', { findingsCount: findingCount });
 
-      // Update scan status to COMPLETED since attack is the final active phase currently
-      await supabaseAdmin.from('scans').update({ status: 'COMPLETED', completed_at: new Date().toISOString() }).eq('id', this.context.scanId);
+      // Trigger Validation phase
+      await supabaseAdmin.from('scans').update({ status: 'VALIDATION' }).eq('id', this.context.scanId);
+      
+      return { success: true, nextStep: 'VALIDATE' };
       await this.logEvent('SCAN_COMPLETED', { target: this.context.target });
       
       return { success: true };

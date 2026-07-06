@@ -3,6 +3,7 @@ import { redis } from './src/lib/queue/redis';
 import { SCAN_QUEUE_NAME, scanQueue } from './src/lib/queue/bull';
 import { ReconAgent } from './src/lib/agents/recon';
 import { AttackAgent } from './src/lib/agents/attack';
+import { ValidationAgent } from './src/lib/agents/validation';
 
 // The worker processes jobs from the queue and drives the State Machine
 const scanWorker = new Worker(
@@ -27,8 +28,14 @@ const scanWorker = new Worker(
         if (result.success && result.nextStep) {
            await scanQueue.add(result.nextStep, { scanId, target, step: result.nextStep });
         }
+      } else if (step === 'VALIDATE') {
+        const agent = new ValidationAgent({ scanId, target });
+        const result = await agent.execute();
+
+        if (result.success && result.nextStep) {
+           await scanQueue.add(result.nextStep, { scanId, target, step: result.nextStep });
+        }
       }
-      // Other steps (validate, report) would be implemented here as new Agents
       
     } catch (error) {
       console.error(`[BullMQ] Error processing job ${job.id}:`, error);

@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [scans, setScans] = useState<any[]>([]);
   const [techFindings, setTechFindings] = useState<any[]>([]);
   const [findings, setFindings] = useState<any[]>([]);
+  const [confirmedFindings, setConfirmedFindings] = useState<any[]>([]);
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [scanTarget, setScanTarget] = useState('');
   const [scanLoading, setScanLoading] = useState(false);
@@ -58,6 +59,7 @@ export default function Dashboard() {
         if (data.scans) setScans(data.scans);
         if (data.technologies) setTechFindings(data.technologies);
         if (data.findings) setFindings(data.findings);
+        if (data.confirmedFindings) setConfirmedFindings(data.confirmedFindings);
       }
     } catch (err) {
       console.error("Failed to fetch dashboard data", err);
@@ -365,6 +367,68 @@ export default function Dashboard() {
                     </td>
                     <td className="px-6 py-4 text-[12px] text-[#898989] max-w-[300px] truncate" title={finding.reasoning}>
                       {finding.reasoning}
+                    </td>
+                    <td className="px-6 py-4 text-right text-[12px] text-[#898989]">
+                      {finding.created_at ? new Date(finding.created_at).toLocaleTimeString() : 'Just now'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* AI Confirmed Findings Table */}
+        <div className="bg-[#171717] border border-[#3ecf8e]/30 rounded-[12px] overflow-hidden mt-8 shadow-[0_0_15px_rgba(62,207,142,0.1)]">
+          <div className="px-6 py-4 border-b border-[#2e2e2e] bg-[#3ecf8e]/5 flex items-center justify-between">
+            <h3 className="text-[14px] font-medium text-[#3ecf8e] flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              AI Verified Findings
+            </h3>
+            <span className="text-[12px] text-[#898989]">Validated by Sentinel AI</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-[14px]">
+              <thead>
+                <tr className="border-b border-[#2e2e2e] text-[#898989]">
+                  <th className="px-6 py-3 font-medium font-sans">Finding ID</th>
+                  <th className="px-6 py-3 font-medium font-sans">Vulnerability</th>
+                  <th className="px-6 py-3 font-medium font-sans">Severity</th>
+                  <th className="px-6 py-3 font-medium font-sans">Status</th>
+                  <th className="px-6 py-3 font-medium font-sans text-right">Validated</th>
+                </tr>
+              </thead>
+              <tbody className="text-[#b4b4b4]">
+                {confirmedFindings.length === 0 && (
+                  <tr><td colSpan={5} className="px-6 py-4 text-center text-[#898989]">No findings verified yet.</td></tr>
+                )}
+                {confirmedFindings.map((finding) => (
+                  <tr key={finding.id} className="border-b border-[#2e2e2e] last:border-0 hover:bg-[#242424] transition-colors">
+                    <td className="px-6 py-4 font-mono text-[12px] text-[#898989]" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
+                    <td className="px-6 py-4 font-medium text-[#fafafa]">{finding.candidate_findings?.title || 'Unknown'}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-0.5 rounded-[6px] text-[12px] font-mono border ${
+                        finding.severity === 'critical' ? 'bg-[#ef4444]/10 border-[#ef4444]/20 text-[#ef4444]' :
+                        finding.severity === 'high' ? 'bg-[#f97316]/10 border-[#f97316]/20 text-[#f97316]' :
+                        finding.severity === 'medium' ? 'bg-[#eab308]/10 border-[#eab308]/20 text-[#eab308]' :
+                        finding.severity === 'low' ? 'bg-[#3b82f6]/10 border-[#3b82f6]/20 text-[#3b82f6]' :
+                        'bg-[#242424] border-[#393939] text-[#898989]'
+                      }`}>
+                        {finding.severity.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {finding.confirmed ? (
+                        <span className="text-[#ef4444] font-medium flex items-center gap-1.5 text-[12px]">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#ef4444]"></div>
+                          VULNERABLE
+                        </span>
+                      ) : (
+                        <span className="text-[#3ecf8e] font-medium flex items-center gap-1.5 text-[12px]">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#3ecf8e]"></div>
+                          FALSE POSITIVE
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right text-[12px] text-[#898989]">
                       {finding.created_at ? new Date(finding.created_at).toLocaleTimeString() : 'Just now'}

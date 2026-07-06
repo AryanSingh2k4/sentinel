@@ -35,10 +35,26 @@ export async function GET() {
       .select('id, title, severity, confidence, reasoning, created_at')
       .order('created_at', { ascending: false });
 
+    // Fetch confirmed findings
+    const { data: confirmedFindings } = await supabaseAdmin
+      .from('confirmed_findings')
+      .select(`
+        id,
+        severity,
+        confirmed,
+        created_at,
+        candidate_findings (
+          title,
+          reasoning
+        )
+      `)
+      .order('created_at', { ascending: false });
+
     return NextResponse.json({
       scans: scans || [],
       technologies: technologies || [],
-      findings: findings || []
+      findings: findings || [],
+      confirmedFindings: confirmedFindings || []
     });
   } catch (error) {
     console.error('Dashboard fetch error:', error);
