@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [scanTarget, setScanTarget] = useState('');
   const [scanLoading, setScanLoading] = useState(false);
+  const [showAllTech, setShowAllTech] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -291,7 +292,7 @@ export default function Dashboard() {
                   {techFindings.length === 0 && (
                     <tr><td colSpan={4} className="px-6 py-4 text-center text-[#898989]">No technologies discovered yet.</td></tr>
                   )}
-                  {techFindings.map((finding) => (
+                  {(showAllTech ? techFindings : techFindings.slice(0, 5)).map((finding) => (
                     <tr key={finding.id} className="border-b border-[#2e2e2e] last:border-0 hover:bg-[#242424] transition-colors">
                       <td className="px-6 py-4 font-mono text-[12px] text-[#898989]" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
                       <td className="px-6 py-4 font-mono text-[12px] text-[#fafafa]">{finding.technology}</td>
@@ -305,6 +306,18 @@ export default function Dashboard() {
                       </td>
                     </tr>
                   ))}
+                  {techFindings.length > 5 && (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-3 text-center border-t border-[#2e2e2e]">
+                        <button 
+                          onClick={() => setShowAllTech(!showAllTech)}
+                          className="text-[12px] font-medium text-[#898989] hover:text-[#fafafa] transition-colors"
+                        >
+                          {showAllTech ? 'Show Less' : `Show All (${techFindings.length})`}
+                        </button>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
