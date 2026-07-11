@@ -107,7 +107,7 @@ export default function Dashboard() {
           <div className="flex h-14 items-center justify-between">
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-[#3ecf8e]" strokeWidth={2} />
+                <Shield className="h-5 w-5 text-[#3ecf8e]" strokeWidth={2} fill="currentColor" />
                 <span className="font-medium tracking-tight text-[#fafafa]">Sentinel</span>
               </div>
               <div className="hidden md:flex space-x-6 text-[14px] font-medium">
@@ -382,7 +382,7 @@ export default function Dashboard() {
         <div className="bg-[#171717] border border-[#3ecf8e]/30 rounded-[12px] overflow-hidden mt-8 shadow-[0_0_15px_rgba(62,207,142,0.1)]">
           <div className="px-6 py-4 border-b border-[#2e2e2e] bg-[#3ecf8e]/5 flex items-center justify-between">
             <h3 className="text-[14px] font-medium text-[#3ecf8e] flex items-center gap-2">
-              <Shield className="h-4 w-4" />
+              <Shield className="h-4 w-4" fill="currentColor" />
               AI Verified Findings
             </h3>
             <span className="text-[12px] text-[#898989]">Validated by Sentinel AI</span>

@@ -122,7 +122,7 @@ export default function LoginPage() {
       
       {/* Header outside the card */}
       <div className="mb-8 flex flex-col items-center space-y-4 text-center">
-        <Shield className="h-10 w-10 text-[#3ecf8e]" strokeWidth={1.5} />
+        <Shield className="h-10 w-10 text-[#3ecf8e]" strokeWidth={1.5} fill="currentColor" />
         <div className="space-y-2">
           <h1 className="text-[24px] font-normal tracking-tight text-[#fafafa]">
             {isResettingPassword ? 'Reset Password' : (isSignUp ? 'Create your account' : 'Welcome to Sentinel')}
