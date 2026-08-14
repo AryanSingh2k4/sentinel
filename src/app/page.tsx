@@ -111,11 +111,11 @@ export default function Dashboard() {
                 <span className="font-medium tracking-tight text-[#fafafa]">Sentinel</span>
               </div>
               <div className="hidden md:flex space-x-6 text-[14px] font-medium">
-                <Link href="#" className="text-[#fafafa] border-b-2 border-[#3ecf8e] py-[15px]">Dashboard</Link>
-                <Link href="#" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Targets</Link>
-                <Link href="#" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Scans</Link>
-                <Link href="#" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Findings</Link>
-                <Link href="#" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Reports</Link>
+                <Link href="/" className="text-[#fafafa] border-b-2 border-[#3ecf8e] py-[15px]">Dashboard</Link>
+                <Link href="#targets" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Targets</Link>
+                <Link href="#scans" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Scans</Link>
+                <Link href="#findings" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Findings</Link>
+                <Link href="/reports" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Reports</Link>
               </div>
             </div>
             
@@ -237,7 +237,7 @@ export default function Dashboard() {
                     <th className="px-6 py-3 font-medium font-sans">Scan ID</th>
                     <th className="px-6 py-3 font-medium font-sans">Target</th>
                     <th className="px-6 py-3 font-medium font-sans">Status</th>
-                    <th className="px-6 py-3 font-medium font-sans text-right">Progress</th>
+                    <th className="px-6 py-3 font-medium font-sans text-right">Report</th>
                   </tr>
                 </thead>
                 <tbody className="text-[#b4b4b4]">
@@ -269,7 +269,15 @@ export default function Dashboard() {
                             {scan.status || 'QUEUED'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right font-mono text-[12px] text-[#fafafa]">-</td>
+                        <td className="px-6 py-4 text-right">
+                          <Link 
+                            href={`/reports/${scan.id}`}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#242424] hover:bg-[#3ecf8e]/10 hover:text-[#3ecf8e] text-[12px] font-mono text-[#898989] border border-[#2e2e2e] hover:border-[#3ecf8e]/30 transition-all"
+                          >
+                            <FileText className="h-3 w-3" />
+                            <span>Report</span>
+                          </Link>
+                        </td>
                       </tr>
                     );
                   })}

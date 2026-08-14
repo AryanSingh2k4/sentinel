@@ -100,10 +100,7 @@ Respond with ONLY a JSON object in this exact format:
       }
 
       await this.logEvent('LLM_TRIAGE_FINISHED', { falsePositives, confirmedIssues });
-      await supabaseAdmin.from('scans').update({ status: 'COMPLETED', completed_at: new Date().toISOString() }).eq('id', this.context.scanId);
-      await this.logEvent('SCAN_COMPLETED', { target: this.context.target });
-
-      return { success: true };
+      return { success: true, nextStep: 'REPORT' };
 
     } catch (error: any) {
       await this.logEvent('VALIDATION_FAILED', { error: error.message });

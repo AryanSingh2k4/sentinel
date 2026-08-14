@@ -4,6 +4,7 @@ import { SCAN_QUEUE_NAME, scanQueue } from './src/lib/queue/bull';
 import { ReconAgent } from './src/lib/agents/recon';
 import { AttackAgent } from './src/lib/agents/attack';
 import { ValidationAgent } from './src/lib/agents/validation';
+import { ReportAgent } from './src/lib/agents/reporting';
 
 // The worker processes jobs from the queue and drives the State Machine
 const scanWorker = new Worker(
@@ -30,6 +31,13 @@ const scanWorker = new Worker(
         }
       } else if (step === 'VALIDATE') {
         const agent = new ValidationAgent({ scanId, target });
+        const result = await agent.execute();
+
+        if (result.success && result.nextStep) {
+           await scanQueue.add(result.nextStep, { scanId, target, step: result.nextStep });
+        }
+      } else if (step === 'REPORT') {
+        const agent = new ReportAgent({ scanId, target });
         const result = await agent.execute();
 
         if (result.success && result.nextStep) {
