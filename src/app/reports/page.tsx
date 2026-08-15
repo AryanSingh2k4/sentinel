@@ -69,6 +69,10 @@ export default function ReportsListPage() {
               </Link>
               <div className="hidden md:flex space-x-6 text-[14px] font-medium">
                 <Link href="/" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Dashboard</Link>
+                <Link href="/github-scanner" className="text-[#b4b4b4] hover:text-[#c084fc] transition-colors py-[15px] flex items-center gap-1.5">
+                  <span>GitHub Scanner</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#a855f7]/20 text-[#c084fc] border border-[#a855f7]/30">Secrets</span>
+                </Link>
                 <Link href="/reports" className="text-[#fafafa] border-b-2 border-[#3ecf8e] py-[15px]">Reports</Link>
               </div>
             </div>

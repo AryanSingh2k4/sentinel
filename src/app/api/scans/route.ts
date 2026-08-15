@@ -13,10 +13,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { target } = await req.json();
+    const body = await req.json();
+    const target = body.target?.trim();
+    const targetType = body.targetType || (
+      target.includes('github.com') ||
+      target.includes('gitlab.com') ||
+      target.includes('bitbucket.org') ||
+      target.endsWith('.git') ||
+      target.startsWith('git@')
+        ? 'git'
+        : 'web'
+    );
 
     if (!target) {
-      return NextResponse.json({ error: 'Target URL is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Target URL or Repository is required' }, { status: 400 });
     }
 
     let targetId: string | null = null;
@@ -31,7 +41,7 @@ export async function POST(req: Request) {
             if (!existingTarget) {
                 const { data: newTarget, error: targetError } = await supabaseAdmin.from('targets').insert({
                     domain: target,
-                    base_url: `https://${target}`,
+                    base_url: target.startsWith('http') ? target : `https://${target}`,
                     operator_id: operator.id
                 }).select().single();
                 if (targetError) throw targetError;
@@ -42,23 +52,26 @@ export async function POST(req: Request) {
     }
 
     // Insert the new scan into Supabase database using service role (admin) to bypass RLS
+    const initialStatus = targetType === 'git' ? 'QUEUED' : 'QUEUED';
     const { data: scan, error: scanError } = await supabaseAdmin.from('scans').insert({
         target_id: targetId,
-        status: 'QUEUED'
+        status: initialStatus
     }).select().single();
 
     if (scanError) throw scanError;
 
-    // Initialize the State Machine by adding the first step (Recon) to BullMQ
-    await scanQueue.add('recon', {
+    // Initialize the State Machine based on target type
+    const initialStep = targetType === 'git' ? 'secrets' : 'recon';
+    await scanQueue.add(initialStep, {
       scanId: scan.id,
       target,
-      step: 'recon'
+      step: initialStep
     });
 
     return NextResponse.json({ 
-      message: 'Scan initiated successfully',
-      scanId: scan.id 
+      message: `${targetType === 'git' ? 'Secret' : 'Vulnerability'} scan initiated successfully`,
+      scanId: scan.id,
+      targetType
     });
   } catch (error) {
     console.error('Scan initiation error:', error);

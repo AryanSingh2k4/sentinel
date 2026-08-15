@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [confirmedFindings, setConfirmedFindings] = useState<any[]>([]);
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [scanTarget, setScanTarget] = useState('');
+  const [scanType, setScanType] = useState<'web' | 'git'>('web');
   const [scanLoading, setScanLoading] = useState(false);
   const [showAllTech, setShowAllTech] = useState(false);
   const router = useRouter();
@@ -112,9 +113,10 @@ export default function Dashboard() {
               </div>
               <div className="hidden md:flex space-x-6 text-[14px] font-medium">
                 <Link href="/" className="text-[#fafafa] border-b-2 border-[#3ecf8e] py-[15px]">Dashboard</Link>
-                <Link href="#targets" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Targets</Link>
-                <Link href="#scans" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Scans</Link>
-                <Link href="#findings" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Findings</Link>
+                <Link href="/github-scanner" className="text-[#b4b4b4] hover:text-[#c084fc] transition-colors py-[15px] flex items-center gap-1.5">
+                  <span>GitHub Scanner</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#a855f7]/20 text-[#c084fc] border border-[#a855f7]/30">Secrets</span>
+                </Link>
                 <Link href="/reports" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Reports</Link>
               </div>
             </div>
@@ -264,15 +266,25 @@ export default function Dashboard() {
                             scan.status === 'FAILED' ? 'bg-[#ef4444]/10 border-[#ef4444]/20 text-[#ef4444]' :
                             scan.status === 'QUEUED' ? 'bg-[#242424] border-[#393939] text-[#898989]' :
                             scan.status === 'COMPLETED' ? 'bg-[#3ecf8e]/10 border-[#3ecf8e]/20 text-[#3ecf8e]' :
+                            scan.status === 'SECRETS' || scan.status === 'SECRET_SCAN' ? 'bg-[#a855f7]/10 border-[#a855f7]/20 text-[#c084fc]' :
                             'bg-[#fbbf24]/10 border-[#fbbf24]/20 text-[#fbbf24]'
                           }`}>
                             {scan.status || 'QUEUED'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
+                          <Link 
+                            href={`/scans/${scan.id}`}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#242424] hover:bg-[#3ecf8e]/10 hover:text-[#3ecf8e] text-[12px] font-mono text-[#fafafa] border border-[#393939] hover:border-[#3ecf8e]/30 transition-all"
+                            title="Live Scan Console"
+                          >
+                            <Activity className="h-3 w-3 text-[#3ecf8e]" />
+                            <span>Console</span>
+                          </Link>
                           <Link 
                             href={`/reports/${scan.id}`}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#242424] hover:bg-[#3ecf8e]/10 hover:text-[#3ecf8e] text-[12px] font-mono text-[#898989] border border-[#2e2e2e] hover:border-[#3ecf8e]/30 transition-all"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#242424] hover:bg-[#fafafa]/10 hover:text-[#fafafa] text-[12px] font-mono text-[#898989] border border-[#2e2e2e] transition-all"
+                            title="Audit Report"
                           >
                             <FileText className="h-3 w-3" />
                             <span>Report</span>
@@ -463,18 +475,51 @@ export default function Dashboard() {
               </svg>
             </button>
             
-            <h2 className="text-[18px] font-medium text-[#fafafa] mb-2">Initiate New Scan</h2>
-            <p className="text-[14px] text-[#898989] mb-6">Enter a target domain or URL to launch the reconnaissance and attack sequence.</p>
+            <h2 className="text-[18px] font-medium text-[#fafafa] mb-1">Initiate Security Assessment</h2>
+            <p className="text-[13px] text-[#898989] mb-5">
+              {scanType === 'web' 
+                ? 'Launch automated reconnaissance, fingerprinting, and vulnerability scanning.' 
+                : 'Clone repository and execute TruffleHog to detect leaked API keys, tokens, and credentials.'}
+            </p>
+
+            {/* Target Type Selector */}
+            <div className="grid grid-cols-2 gap-2 p-1 bg-[#121212] border border-[#2e2e2e] rounded-[8px] mb-4">
+              <button
+                type="button"
+                onClick={() => setScanType('web')}
+                className={`py-1.5 text-[13px] font-medium rounded-[6px] transition-all ${
+                  scanType === 'web'
+                    ? 'bg-[#242424] text-[#fafafa] shadow-sm border border-[#393939]'
+                    : 'text-[#898989] hover:text-[#fafafa]'
+                }`}
+              >
+                Web Application
+              </button>
+              <button
+                type="button"
+                onClick={() => setScanType('git')}
+                className={`py-1.5 text-[13px] font-medium rounded-[6px] transition-all flex items-center justify-center gap-1.5 ${
+                  scanType === 'git'
+                    ? 'bg-[#242424] text-[#c084fc] shadow-sm border border-[#a855f7]/30'
+                    : 'text-[#898989] hover:text-[#fafafa]'
+                }`}
+              >
+                <span>GitHub Repo</span>
+                <span className="text-[10px] px-1 py-0.2 rounded bg-[#a855f7]/20 text-[#c084fc]">Secret</span>
+              </button>
+            </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-[13px] font-medium text-[#b4b4b4] mb-1.5">Target</label>
+                <label className="block text-[13px] font-medium text-[#b4b4b4] mb-1.5">
+                  {scanType === 'web' ? 'Target Domain / URL' : 'Git Repository URL'}
+                </label>
                 <input 
                   autoFocus
                   type="text" 
                   value={scanTarget}
                   onChange={(e) => setScanTarget(e.target.value)}
-                  placeholder="e.g. hackerone.com"
+                  placeholder={scanType === 'web' ? 'e.g. hackerone.com or app.example.com' : 'e.g. https://github.com/org/repo.git'}
                   className="w-full h-[40px] px-3 bg-[#121212] border border-[#393939] text-[#fafafa] text-[14px] rounded-[8px] focus:outline-none focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e] transition-all placeholder-[#898989]"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && scanTarget.trim() && !scanLoading) {
@@ -501,11 +546,19 @@ export default function Dashboard() {
                       const res = await fetch('/api/scans', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ target: scanTarget.trim() })
+                        body: JSON.stringify({ 
+                          target: scanTarget.trim(),
+                          targetType: scanType
+                        })
                       });
                       if (res.ok) {
+                        const data = await res.json();
                         setScanModalOpen(false);
-                        fetchDashboardData(); // Instantly refresh the table
+                        if (data.scanId) {
+                          router.push(`/scans/${data.scanId}`);
+                        } else {
+                          fetchDashboardData();
+                        }
                       } else {
                         alert("Failed to initiate scan.");
                       }
@@ -516,7 +569,11 @@ export default function Dashboard() {
                       setScanLoading(false);
                     }
                   }}
-                  className="bg-[#3ecf8e] hover:bg-[#72e3ad] text-[#121212] rounded-[8px] h-[36px] px-4 text-[14px] font-medium transition-colors disabled:opacity-50 flex items-center"
+                  className={`${
+                    scanType === 'git' 
+                      ? 'bg-[#a855f7] hover:bg-[#c084fc] text-[#121212]' 
+                      : 'bg-[#3ecf8e] hover:bg-[#72e3ad] text-[#121212]'
+                  } rounded-[8px] h-[36px] px-4 text-[14px] font-medium transition-colors disabled:opacity-50 flex items-center`}
                 >
                   {scanLoading ? (
                     <>
@@ -526,7 +583,7 @@ export default function Dashboard() {
                       </svg>
                       Starting...
                     </>
-                  ) : 'Start Scan'}
+                  ) : scanType === 'git' ? 'Scan Repository Secrets' : 'Start Web Scan'}
                 </button>
               </div>
             </div>

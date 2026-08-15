@@ -5,6 +5,7 @@ import { ReconAgent } from './src/lib/agents/recon';
 import { AttackAgent } from './src/lib/agents/attack';
 import { ValidationAgent } from './src/lib/agents/validation';
 import { ReportAgent } from './src/lib/agents/reporting';
+import { SecretAgent } from './src/lib/agents/secret';
 
 // The worker processes jobs from the queue and drives the State Machine
 const scanWorker = new Worker(
@@ -21,6 +22,13 @@ const scanWorker = new Worker(
         if (result.success && result.nextStep) {
           // Advance the State Machine by enqueuing the next step
           await scanQueue.add(result.nextStep, { scanId, target, step: result.nextStep });
+        }
+      } else if (step === 'SECRETS' || step === 'secrets') {
+        const agent = new SecretAgent({ scanId, target });
+        const result = await agent.execute();
+
+        if (result.success && result.nextStep) {
+           await scanQueue.add(result.nextStep, { scanId, target, step: result.nextStep });
         }
       } else if (step === 'ATTACK') {
         const agent = new AttackAgent({ scanId, target });
