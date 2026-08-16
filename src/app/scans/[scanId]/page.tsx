@@ -133,6 +133,7 @@ export default function ScanConsolePage() {
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   // User state for header
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -350,6 +351,7 @@ export default function ScanConsolePage() {
     if (!scanId || cancelling) return;
     try {
       setCancelling(true);
+      setCancelError(null);
       const res = await fetch(`/api/scans/${scanId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -360,10 +362,10 @@ export default function ScanConsolePage() {
         setCancelModalOpen(false);
       } else {
         const errJson = await res.json().catch(() => ({}));
-        alert(errJson.error || 'Failed to cancel scan');
+        setCancelError(errJson.error || 'Failed to cancel scan');
       }
     } catch (err: any) {
-      alert(err.message || 'Error cancelling scan');
+      setCancelError(err.message || 'Error cancelling scan');
     } finally {
       setCancelling(false);
     }
@@ -962,7 +964,10 @@ export default function ScanConsolePage() {
 
               {isRunning && (
                 <button
-                  onClick={() => setCancelModalOpen(true)}
+                  onClick={() => {
+                    setCancelError(null);
+                    setCancelModalOpen(true);
+                  }}
                   className="px-3.5 py-2 bg-[#ef4444]/10 hover:bg-[#ef4444]/20 text-[#ef4444] text-[12px] font-medium rounded-lg border border-[#ef4444]/30 transition-colors inline-flex items-center gap-1.5"
                 >
                   <StopCircle className="h-3.5 w-3.5" />
@@ -1611,7 +1616,10 @@ export default function ScanConsolePage() {
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
             {isRunning && (
               <button
-                onClick={() => setCancelModalOpen(true)}
+                onClick={() => {
+                  setCancelError(null);
+                  setCancelModalOpen(true);
+                }}
                 disabled={cancelling}
                 className="px-4 py-2 bg-[#242424] hover:bg-[#ef4444]/20 hover:text-[#ef4444] text-[#b4b4b4] text-[13px] font-medium rounded-lg border border-[#333] transition-colors inline-flex items-center gap-1.5"
               >
@@ -1657,9 +1665,18 @@ export default function ScanConsolePage() {
               <span className="text-[#fafafa] font-mono font-semibold">{scan.target}</span>? This
               will immediately halt crawler subtasks, tool executions, and LLM validation.
             </p>
+            {cancelError && (
+              <div className="mb-4 p-3 rounded-lg bg-[#ef4444]/10 border border-[#ef4444]/30 text-[#ef4444] text-[13px] flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>{cancelError}</span>
+              </div>
+            )}
             <div className="flex items-center justify-end gap-3">
               <button
-                onClick={() => setCancelModalOpen(false)}
+                onClick={() => {
+                  setCancelModalOpen(false);
+                  setCancelError(null);
+                }}
                 disabled={cancelling}
                 className="px-4 py-2 bg-[#242424] hover:bg-[#2e2e2e] text-[#fafafa] text-[13px] font-medium rounded-lg transition-colors"
               >

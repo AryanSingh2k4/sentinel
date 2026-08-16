@@ -52,10 +52,6 @@ export class AttackAgent extends BaseAgent {
       await supabaseAdmin.from('scans').update({ status: 'VALIDATION' }).eq('id', this.context.scanId);
       
       return { success: true, nextStep: 'VALIDATE' };
-      await this.logEvent('SCAN_COMPLETED', { target: this.context.target });
-      
-      return { success: true };
-
     } catch (error: any) {
       await this.logEvent('ATTACK_FAILED', { error: error.message });
       await supabaseAdmin.from('scans').update({ status: 'FAILED' }).eq('id', this.context.scanId);

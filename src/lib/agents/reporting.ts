@@ -37,19 +37,22 @@ export class ReportAgent extends BaseAgent {
         .eq('scan_id', this.context.scanId);
 
       // 4. Fetch confirmed findings
-      const { data: confirmedFindings } = await supabaseAdmin
-        .from('confirmed_findings')
-        .select(`
-          id,
-          severity,
-          confirmed,
-          created_at,
-          candidate_findings (
-            title,
-            reasoning
-          )
-        `)
-        .in('candidate_finding_id', (candidateFindings || []).map(f => f.id));
+      const candidateIds = (candidateFindings || []).map((f: any) => f.id);
+      const confirmedFindings = candidateIds.length > 0
+        ? (await supabaseAdmin
+            .from('confirmed_findings')
+            .select(`
+              id,
+              severity,
+              confirmed,
+              created_at,
+              candidate_findings (
+                title,
+                reasoning
+              )
+            `)
+            .in('candidate_finding_id', candidateIds)).data
+        : [];
 
       const targetDomain = scan?.targets?.domain || this.context.target || 'Target';
       const techList = (technologies || []).map(t => t.technology).join(', ') || 'Standard Web Stack';

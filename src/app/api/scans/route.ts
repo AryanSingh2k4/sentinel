@@ -15,6 +15,11 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const target = body.target?.trim();
+
+    if (!target) {
+      return NextResponse.json({ error: 'Target URL or Repository is required' }, { status: 400 });
+    }
+
     const targetType = body.targetType || (
       target.includes('github.com') ||
       target.includes('gitlab.com') ||
@@ -24,10 +29,6 @@ export async function POST(req: Request) {
         ? 'git'
         : 'web'
     );
-
-    if (!target) {
-      return NextResponse.json({ error: 'Target URL or Repository is required' }, { status: 400 });
-    }
 
     let targetId: string | null = null;
     

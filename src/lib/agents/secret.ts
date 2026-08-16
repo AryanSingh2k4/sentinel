@@ -8,7 +8,7 @@ export class SecretAgent extends BaseAgent {
       await supabaseAdmin.from('scans').update({ status: 'SECRETS' }).eq('id', this.context.scanId);
 
       let targetUrl = this.context.target.trim();
-      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://') && !targetUrl.startsWith('git@')) {
+      if (!targetUrl.startsWith('http') && !targetUrl.startsWith('git@')) {
         targetUrl = `https://${targetUrl}`;
       }
 

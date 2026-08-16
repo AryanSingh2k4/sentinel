@@ -3,6 +3,7 @@ import readline from 'readline';
 import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
+import { randomUUID } from 'crypto';
 
 export interface HttpxResult {
   url: string;
@@ -20,7 +21,7 @@ export interface HttpxResult {
 export async function runHttpx(urls: string[], onResult: (result: HttpxResult) => Promise<void> | void): Promise<void> {
   if (urls.length === 0) return;
 
-  const tempFilePath = path.join(os.tmpdir(), `httpx-${Date.now()}.txt`);
+  const tempFilePath = path.join(os.tmpdir(), `httpx-${randomUUID()}.txt`);
   await fs.writeFile(tempFilePath, urls.join('\n'));
 
   return new Promise((resolve, reject) => {

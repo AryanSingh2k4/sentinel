@@ -13,6 +13,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // TODO: In production, filter by authenticated user's operator_id to prevent cross-user data leakage
     const { data: reports, error } = await supabaseAdmin
       .from('reports')
       .select(`

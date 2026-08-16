@@ -129,14 +129,10 @@ export default function ReportsListPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {reports.map((r) => {
-              let domainName = 'Target Application';
-              if (r.scans?.targets) {
-                if (Array.isArray(r.scans.targets) && r.scans.targets.length > 0) {
-                  domainName = r.scans.targets[0].domain;
-                } else if ((r.scans.targets as any).domain) {
-                  domainName = (r.scans.targets as any).domain;
-                }
-              }
+              const domainName =
+                (Array.isArray(r.scans?.targets)
+                  ? r.scans?.targets?.[0]?.domain
+                  : (r.scans?.targets as any)?.domain) || 'Target Application';
 
               // Sanitize any thought block in summary
               const cleanSummary = (r.summary || 'Security assessment completed.')

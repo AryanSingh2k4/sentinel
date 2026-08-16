@@ -51,6 +51,8 @@ const scanWorker = new Worker(
         if (result.success && result.nextStep) {
            await scanQueue.add(result.nextStep, { scanId, target, step: result.nextStep });
         }
+      } else {
+        throw new Error(`Unknown pipeline step: ${step}`);
       }
       
     } catch (error) {

@@ -73,18 +73,27 @@ Respond with ONLY a JSON object in this exact format:
           let isFalsePositive = false;
           try {
             const result = JSON.parse(jsonMatch[0]);
-            isFalsePositive = result.is_false_positive;
+            isFalsePositive = String(result.is_false_positive).toLowerCase() === 'true';
           } catch(e) {
             console.error(`Failed to parse JSON for finding ${finding.id}: ${jsonMatch[0].substring(0, 50)}...`);
             continue;
           }
 
           // 3. Store the result in confirmed_findings
-          await supabaseAdmin.from('confirmed_findings').insert({
-            candidate_finding_id: finding.id,
-            severity: finding.severity,
-            confirmed: !isFalsePositive
-          });
+          try {
+            const { error: insertError } = await supabaseAdmin.from('confirmed_findings').insert({
+              candidate_finding_id: finding.id,
+              severity: finding.severity,
+              confirmed: !isFalsePositive
+            });
+            if (insertError) {
+              console.error(`Failed to insert confirmed finding for candidate ${finding.id}:`, insertError);
+              continue;
+            }
+          } catch (dbError) {
+            console.error(`Database error inserting confirmed finding for candidate ${finding.id}:`, dbError);
+            continue;
+          }
 
           if (isFalsePositive) {
             falsePositives++;

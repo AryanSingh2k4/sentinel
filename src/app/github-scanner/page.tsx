@@ -896,7 +896,7 @@ export default function GitHubScannerPage() {
                     </thead>
                     <tbody className="divide-y divide-[#242424]">
                       {scans.map((scan) => {
-                        const isActive = ['QUEUED', 'SECRETS', 'VALIDATION', 'REPORT'].includes(scan.status);
+                        const isActive = ['QUEUED', 'SECRETS', 'VALIDATION', 'REPORTING'].includes(scan.status);
 
                         return (
                           <tr key={scan.id} className="hover:bg-[#1f1f1f] transition-colors">

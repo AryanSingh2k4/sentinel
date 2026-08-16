@@ -8,6 +8,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ scanId: string }> }
 ) {
+  // TODO: In production, verify scan ownership via authenticated user's operator_id
   try {
     const { scanId } = await params;
 
@@ -173,6 +174,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ scanId: string }> }
 ) {
+  // TODO: In production, verify scan ownership via authenticated user's operator_id
   try {
     const { scanId } = await params;
 

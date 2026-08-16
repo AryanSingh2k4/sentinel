@@ -17,20 +17,57 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
+interface ScanTarget {
+  domain?: string;
+}
+
+interface Scan {
+  id: string;
+  status: string;
+  targets?: ScanTarget | ScanTarget[] | null;
+}
+
+interface TechFinding {
+  id: string;
+  technology: string;
+  confidence: number;
+  created_at?: string;
+}
+
+interface Finding {
+  id: string;
+  title: string;
+  severity: string;
+  reasoning?: string;
+  created_at?: string;
+}
+
+interface ConfirmedFinding {
+  id: string;
+  severity: string;
+  confirmed: boolean;
+  created_at?: string;
+  candidate_findings?: {
+    title?: string;
+  } | null;
+}
+
 export default function Dashboard() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [scans, setScans] = useState<any[]>([]);
-  const [techFindings, setTechFindings] = useState<any[]>([]);
-  const [findings, setFindings] = useState<any[]>([]);
-  const [confirmedFindings, setConfirmedFindings] = useState<any[]>([]);
+  const [scans, setScans] = useState<Scan[]>([]);
+  const [techFindings, setTechFindings] = useState<TechFinding[]>([]);
+  const [findings, setFindings] = useState<Finding[]>([]);
+  const [confirmedFindings, setConfirmedFindings] = useState<ConfirmedFinding[]>([]);
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [scanTarget, setScanTarget] = useState('');
   const [scanType, setScanType] = useState<'web' | 'git'>('web');
   const [scanLoading, setScanLoading] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
   const [showAllTech, setShowAllTech] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -76,19 +113,31 @@ export default function Dashboard() {
       fetchDashboardData();
     }, 3000);
 
+    const debouncedFetch = () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      debounceTimeoutRef.current = setTimeout(() => {
+        fetchDashboardData();
+      }, 500);
+    };
+
     // Supabase Realtime Subscription (Might be blocked by RLS, but keeping as fallback)
     const supabase = createClient();
     const channel = supabase.channel('dashboard_realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'scans' }, () => {
-        fetchDashboardData();
+        debouncedFetch();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'discovered_technologies' }, () => {
-        fetchDashboardData();
+        debouncedFetch();
       })
       .subscribe();
 
     return () => {
       clearInterval(interval);
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
       supabase.removeChannel(channel);
     };
   }, []);
@@ -176,6 +225,7 @@ export default function Dashboard() {
           <button 
             onClick={() => {
               setScanTarget('');
+              setScanError(null);
               setScanModalOpen(true);
             }}
             className="bg-[#3ecf8e] hover:bg-[#72e3ad] text-[#121212] rounded-[8px] h-[36px] px-4 text-[14px] font-medium transition-colors"
@@ -250,8 +300,8 @@ export default function Dashboard() {
                     // Extract domain from nested targets object (or array)
                     let domainName = 'Unknown Target';
                     if (scan.targets) {
-                      if (Array.isArray(scan.targets) && scan.targets.length > 0) {
-                        domainName = scan.targets[0].domain || 'Unknown Target';
+                      if (Array.isArray(scan.targets)) {
+                        domainName = scan.targets[0]?.domain || 'Unknown Target';
                       } else if (scan.targets.domain) {
                         domainName = scan.targets.domain;
                       }
@@ -518,7 +568,10 @@ export default function Dashboard() {
                   autoFocus
                   type="text" 
                   value={scanTarget}
-                  onChange={(e) => setScanTarget(e.target.value)}
+                  onChange={(e) => {
+                    setScanTarget(e.target.value);
+                    if (scanError) setScanError(null);
+                  }}
                   placeholder={scanType === 'web' ? 'e.g. hackerone.com or app.example.com' : 'e.g. https://github.com/org/repo.git'}
                   className="w-full h-[40px] px-3 bg-[#121212] border border-[#393939] text-[#fafafa] text-[14px] rounded-[8px] focus:outline-none focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e] transition-all placeholder-[#898989]"
                   onKeyDown={(e) => {
@@ -528,6 +581,13 @@ export default function Dashboard() {
                   }}
                 />
               </div>
+
+              {scanError && (
+                <div className="p-2.5 rounded-[8px] bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-[13px] flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-[#ef4444]" />
+                  <span>{scanError}</span>
+                </div>
+              )}
               
               <div className="flex justify-end space-x-3 pt-2">
                 <button 
@@ -541,6 +601,7 @@ export default function Dashboard() {
                   id="start-scan-btn"
                   disabled={!scanTarget.trim() || scanLoading}
                   onClick={async () => {
+                    setScanError(null);
                     setScanLoading(true);
                     try {
                       const res = await fetch('/api/scans', {
@@ -560,11 +621,12 @@ export default function Dashboard() {
                           fetchDashboardData();
                         }
                       } else {
-                        alert("Failed to initiate scan.");
+                        const errData = await res.json().catch(() => null);
+                        setScanError(errData?.error || "Failed to initiate scan.");
                       }
                     } catch (e) {
                       console.error(e);
-                      alert("Error initiating scan.");
+                      setScanError("Error initiating scan.");
                     } finally {
                       setScanLoading(false);
                     }

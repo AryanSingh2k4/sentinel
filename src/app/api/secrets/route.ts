@@ -118,6 +118,7 @@ function parseSecretFinding(
 }
 
 export async function GET() {
+  // TODO: In production, filter all queries by authenticated user's operator_id to prevent data leakage
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -156,7 +157,8 @@ export async function GET() {
         reasoning,
         created_at
       `)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(1000);
 
     if (candidateError) throw candidateError;
 
@@ -170,7 +172,8 @@ export async function GET() {
         confirmed,
         created_at
       `)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(1000);
 
     if (confirmedError) throw confirmedError;
 

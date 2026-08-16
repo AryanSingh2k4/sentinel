@@ -3,6 +3,7 @@ import readline from 'readline';
 import path from 'path';
 import fs from 'fs/promises';
 import os from 'os';
+import { randomUUID } from 'crypto';
 
 export interface NucleiResult {
   template_id: string;
@@ -27,7 +28,7 @@ export interface NucleiResult {
 export async function runNuclei(urls: string[], onResult: (result: NucleiResult) => Promise<void> | void): Promise<void> {
   if (urls.length === 0) return;
 
-  const tempFilePath = path.join(os.tmpdir(), `nuclei-${Date.now()}.txt`);
+  const tempFilePath = path.join(os.tmpdir(), `nuclei-${randomUUID()}.txt`);
   await fs.writeFile(tempFilePath, urls.join('\n'));
 
   return new Promise((resolve, reject) => {

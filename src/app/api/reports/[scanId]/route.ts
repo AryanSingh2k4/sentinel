@@ -22,6 +22,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // TODO: In production, verify scan ownership via authenticated user's operator_id
     // 1. Fetch scan
     const { data: scan, error: scanErr } = await supabaseAdmin
       .from('scans')
@@ -68,26 +69,29 @@ export async function GET(
       .order('created_at', { ascending: false });
 
     // 6. Fetch confirmed findings
-    const { data: confirmedFindings } = await supabaseAdmin
-      .from('confirmed_findings')
-      .select(`
-        id,
-        severity,
-        confirmed,
-        created_at,
-        candidate_findings (
-          id,
-          title,
-          reasoning,
-          confidence
-        )
-      `)
-      .in('candidate_finding_id', (candidateFindings || []).map(f => f.id))
-      .order('created_at', { ascending: false });
+    const candidateIds = (candidateFindings || []).map((f: any) => f.id);
+    const confirmedFindings = candidateIds.length > 0
+      ? (await supabaseAdmin
+          .from('confirmed_findings')
+          .select(`
+            id,
+            severity,
+            confirmed,
+            created_at,
+            candidate_findings (
+              id,
+              title,
+              reasoning,
+              confidence
+            )
+          `)
+          .in('candidate_finding_id', candidateIds)
+          .order('created_at', { ascending: false })).data
+      : [];
 
     const targetDomain = scan.targets?.domain || 'Unknown Target';
     const verifiedVulnerabilities = (confirmedFindings || []).filter(f => f.confirmed);
-    const falsePositives = (confirmedFindings || []).filter(f => !f.confirmed);
+    const falsePositives = (confirmedFindings || []).filter(f => f.confirmed === false);
 
     const severityCounts = {
       critical: verifiedVulnerabilities.filter(f => f.severity === 'critical').length,
