@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function LoginPage() {
   const [name, setName] = useState('');
@@ -118,23 +119,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#121212] p-4 font-sans text-[#fafafa]">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#ffffff] dark:bg-[#000000] p-4 font-sans text-[#171717] dark:text-[#ededed] relative transition-colors duration-150">
       
+      {/* Top Right Theme Toggle */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       {/* Header outside the card */}
-      <div className="mb-8 flex flex-col items-center space-y-4 text-center">
-        <Shield className="h-10 w-10 text-[#3ecf8e]" strokeWidth={1.5} fill="currentColor" />
-        <div className="space-y-2">
-          <h1 className="text-[24px] font-normal tracking-tight text-[#fafafa]">
+      <div className="mb-8 flex flex-col items-center space-y-3 text-center">
+        <div className="h-10 w-10 rounded-[10px] bg-[#171717] dark:bg-[#ededed] flex items-center justify-center text-white dark:text-[#000000]">
+          <Shield className="h-5 w-5" fill="currentColor" />
+        </div>
+        <div className="space-y-1">
+          <h1 className="text-[24px] font-medium tracking-tight text-[#171717] dark:text-[#ededed]">
             {isResettingPassword ? 'Reset Password' : (isSignUp ? 'Create your account' : 'Welcome to Sentinel')}
           </h1>
-          <p className="text-[14px] text-[#b4b4b4]">
+          <p className="text-[14px] text-[#8f8f8f]">
             {isResettingPassword ? 'Enter your email to receive a reset link' : (isSignUp ? 'Register to start scanning targets' : 'Sign in to access your operator portal')}
           </p>
         </div>
       </div>
 
-      {/* The Supabase Style Card */}
-      <div className="w-full max-w-[400px] bg-[#171717] border border-[#2e2e2e] rounded-[12px] p-8 shadow-none">
+      {/* The Vercel Card */}
+      <div className="w-full max-w-[400px] bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[16px] p-8 shadow-none">
         
         {!isResettingPassword && (
           <>
@@ -142,7 +150,7 @@ export default function LoginPage() {
               type="button" 
               onClick={handleGoogleLogin} 
               disabled={loading}
-              className="w-full flex items-center justify-center h-[40px] rounded-[8px] bg-[#242424] border border-[#393939] text-[14px] text-[#fafafa] font-medium hover:border-[#898989] transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-center h-[40px] rounded-full bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[14px] text-[#171717] dark:text-[#ededed] font-medium hover:bg-[#fafafa] dark:hover:bg-[#171717] transition-all disabled:opacity-50 cursor-pointer"
             >
               <svg className="mr-2.5 h-4 w-4" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -155,10 +163,10 @@ export default function LoginPage() {
 
             <div className="mt-6 mb-6 relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-[#2e2e2e]" />
+                <span className="w-full border-t border-[#ebebeb] dark:border-[#222222]" />
               </div>
               <div className="relative flex justify-center text-[12px]">
-                <span className="bg-[#171717] px-4 text-[#898989]">
+                <span className="bg-[#ffffff] dark:bg-[#0a0a0a] px-4 text-[#8f8f8f]">
                   or continue with email
                 </span>
               </div>
@@ -170,34 +178,34 @@ export default function LoginPage() {
           
           {isSignUp && (
             <div className="space-y-1.5">
-              <label htmlFor="name" className="text-[14px] text-[#b4b4b4] font-medium">Full Name</label>
+              <label htmlFor="name" className="text-[13px] text-[#171717] dark:text-[#ededed] font-medium">Full Name</label>
               <input 
                 id="name" 
                 type="text" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-[40px] px-3 bg-[#121212] border border-[#393939] text-[#fafafa] text-[14px] rounded-[8px] focus:outline-none focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e] transition-all placeholder-[#898989]"
+                className="w-full h-[40px] px-3 bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[#171717] dark:text-[#ededed] text-[14px] rounded-[8px] focus:outline-none focus:border-[#171717] dark:focus:border-[#ededed] focus:ring-1 focus:ring-[#171717] dark:focus:ring-[#ededed] transition-all placeholder-[#8f8f8f]"
               />
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label htmlFor="email" className="text-[14px] text-[#b4b4b4] font-medium">Email Address</label>
+            <label htmlFor="email" className="text-[13px] text-[#171717] dark:text-[#ededed] font-medium">Email Address</label>
             <input 
               id="email" 
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-[40px] px-3 bg-[#121212] border border-[#393939] text-[#fafafa] text-[14px] rounded-[8px] focus:outline-none focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e] transition-all placeholder-[#898989]"
+              className="w-full h-[40px] px-3 bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[#171717] dark:text-[#ededed] text-[14px] rounded-[8px] focus:outline-none focus:border-[#171717] dark:focus:border-[#ededed] focus:ring-1 focus:ring-[#171717] dark:focus:ring-[#ededed] transition-all placeholder-[#8f8f8f]"
             />
           </div>
           {!isResettingPassword && (
             <>
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="text-[14px] text-[#b4b4b4] font-medium">Password</label>
+                  <label htmlFor="password" className="text-[13px] text-[#171717] dark:text-[#ededed] font-medium">Password</label>
                   {!isSignUp && (
-                    <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsResettingPassword(true); }} className="text-[12px] text-[#898989] hover:text-[#3ecf8e] transition-colors">
+                    <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsResettingPassword(true); }} className="text-[12px] text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors">
                       Forgot Password?
                     </button>
                   )}
@@ -207,47 +215,47 @@ export default function LoginPage() {
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-[40px] px-3 bg-[#121212] border border-[#393939] text-[#fafafa] text-[14px] rounded-[8px] focus:outline-none focus:border-[#3ecf8e] focus:ring-1 focus:ring-[#3ecf8e] transition-all placeholder-[#898989]"
+                  className="w-full h-[40px] px-3 bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[#171717] dark:text-[#ededed] text-[14px] rounded-[8px] focus:outline-none focus:border-[#171717] dark:focus:border-[#ededed] focus:ring-1 focus:ring-[#171717] dark:focus:ring-[#ededed] transition-all placeholder-[#8f8f8f]"
                 />
               </div>
             </>
           )}
 
           {error && (
-            <div className="text-[13px] font-medium text-[#f87171] bg-[#7f1d1d]/20 border border-[#991b1b]/30 rounded-[6px] p-2 text-center">
+            <div className="text-[13px] font-medium text-[#dc2626] dark:text-[#ef4444] bg-[#fef2f2] dark:bg-[#ef4444]/10 border border-[#fecaca] dark:border-[#ef4444]/30 rounded-[8px] p-2.5 text-center">
               {error}
             </div>
           )}
 
           {successMsg && (
-            <div className="text-[13px] font-medium text-[#3ecf8e] bg-[#3ecf8e]/10 border border-[#3ecf8e]/30 rounded-[6px] p-2 text-center">
+            <div className="text-[13px] font-medium text-[#16a34a] dark:text-[#22c55e] bg-[#f0fdf4] dark:bg-[#16a34a]/10 border border-[#bbf7d0] dark:border-[#16a34a]/30 rounded-[8px] p-2.5 text-center">
               {successMsg}
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="w-full mt-2 bg-[#3ecf8e] hover:bg-[#72e3ad] text-[#121212] rounded-[8px] h-[40px] text-[14px] font-medium transition-colors disabled:opacity-50">
+          <button type="submit" disabled={loading} className="w-full mt-2 bg-[#171717] hover:bg-[#000000] dark:bg-[#ededed] dark:hover:bg-[#ffffff] text-[#ffffff] dark:text-[#000000] rounded-full h-[40px] text-[14px] font-medium transition-colors disabled:opacity-50 cursor-pointer shadow-none">
             {loading ? 'Processing...' : (isResettingPassword ? 'Send Reset Link' : (isSignUp ? 'Sign Up' : 'Sign In'))}
           </button>
         </form>
 
       </div>
 
-      <div className="mt-8 text-center text-[14px] text-[#898989]">
+      <div className="mt-8 text-center text-[14px] text-[#8f8f8f]">
         {isResettingPassword ? (
-          <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsResettingPassword(false); }} className="text-[#fafafa] hover:text-[#3ecf8e] transition-colors">
+          <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsResettingPassword(false); }} className="text-[#171717] dark:text-[#ededed] hover:underline transition-colors font-medium cursor-pointer">
             Back to login
           </button>
         ) : isSignUp ? (
           <>
             Already have an account?{' '}
-            <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsSignUp(false); }} className="text-[#fafafa] hover:text-[#3ecf8e] transition-colors">
+            <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsSignUp(false); }} className="text-[#171717] dark:text-[#ededed] hover:underline transition-colors font-medium cursor-pointer">
               Sign In
             </button>
           </>
         ) : (
           <>
             Don't have an account?{' '}
-            <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsSignUp(true); }} className="text-[#fafafa] hover:text-[#3ecf8e] transition-colors">
+            <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsSignUp(true); }} className="text-[#171717] dark:text-[#ededed] hover:underline transition-colors font-medium cursor-pointer">
               Sign Up
             </button>
           </>

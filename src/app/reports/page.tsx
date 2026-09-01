@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   AlertTriangle
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface ReportListItem {
   id: string;
@@ -57,33 +58,38 @@ export default function ReportsListPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#121212] font-sans text-[#fafafa] pb-20">
+    <div className="min-h-screen bg-[#ffffff] dark:bg-[#000000] font-sans text-[#171717] dark:text-[#ededed] pb-20 transition-colors duration-150">
       {/* Top Navigation */}
-      <nav className="border-b border-[#2e2e2e] bg-[#171717]">
+      <nav className="border-b border-[#ebebeb] dark:border-[#222222] bg-[#ffffff] dark:bg-[#000000] sticky top-0 z-40">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 items-center justify-between">
             <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-[#3ecf8e]" strokeWidth={2} fill="currentColor" />
-                <span className="font-medium tracking-tight text-[#fafafa]">Sentinel</span>
+              <Link href="/" className="flex items-center space-x-2.5">
+                <div className="h-6 w-6 rounded-[6px] bg-[#171717] dark:bg-[#ededed] flex items-center justify-center text-white dark:text-[#000000]">
+                  <Shield className="h-3.5 w-3.5" fill="currentColor" />
+                </div>
+                <span className="font-medium tracking-tight text-[#171717] dark:text-[#ededed] text-[15px]">Sentinel</span>
               </Link>
               <div className="hidden md:flex space-x-6 text-[14px] font-medium">
-                <Link href="/" className="text-[#b4b4b4] hover:text-[#fafafa] transition-colors py-[15px]">Dashboard</Link>
-                <Link href="/github-scanner" className="text-[#b4b4b4] hover:text-[#c084fc] transition-colors py-[15px] flex items-center gap-1.5">
+                <Link href="/" className="text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors py-[15px]">Dashboard</Link>
+                <Link href="/github-scanner" className="text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors py-[15px] flex items-center gap-1.5">
                   <span>GitHub Scanner</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#a855f7]/20 text-[#c084fc] border border-[#a855f7]/30">Secrets</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#fafafa] dark:bg-[#111111] text-[#171717] dark:text-[#ededed] border border-[#ebebeb] dark:border-[#222222]">Secrets</span>
                 </Link>
-                <Link href="/reports" className="text-[#fafafa] border-b-2 border-[#3ecf8e] py-[15px]">Reports</Link>
+                <Link href="/reports" className="text-[#171717] dark:text-[#ededed] border-b-2 border-[#171717] dark:border-[#ededed] py-[15px]">Reports</Link>
               </div>
             </div>
 
-            <Link 
-              href="/"
-              className="flex items-center gap-1.5 text-[13px] text-[#898989] hover:text-[#fafafa] transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Dashboard</span>
-            </Link>
+            <div className="flex items-center space-x-3">
+              <ThemeToggle />
+              <Link 
+                href="/"
+                className="flex items-center gap-1.5 text-[13px] text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back to Dashboard</span>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
@@ -92,36 +98,36 @@ export default function ReportsListPage() {
       <main className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-[24px] font-semibold tracking-tight text-[#fafafa] flex items-center gap-2.5">
-              <FileText className="h-6 w-6 text-[#3ecf8e]" />
+            <h1 className="text-[24px] font-medium tracking-tight text-[#171717] dark:text-[#ededed] flex items-center gap-2.5">
+              <FileText className="h-6 w-6 text-[#171717] dark:text-[#ededed]" />
               Security Assessment Reports
             </h1>
-            <p className="text-[14px] text-[#898989] mt-1">
+            <p className="text-[14px] text-[#8f8f8f] mt-1">
               Automated audit reports synthesized by Sentinel AI with executive risk summaries and vulnerability breakdowns.
             </p>
           </div>
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-[#898989] flex items-center justify-center gap-3 font-mono text-[14px]">
-            <Activity className="h-5 w-5 animate-spin text-[#3ecf8e]" />
+          <div className="p-12 text-center text-[#8f8f8f] flex items-center justify-center gap-3 font-mono text-[14px]">
+            <Activity className="h-5 w-5 animate-spin text-[#171717] dark:text-[#ededed]" />
             <span>Loading security reports...</span>
           </div>
         ) : error ? (
-          <div className="p-6 bg-[#171717] border border-[#ef4444]/30 rounded-xl text-center">
-            <AlertTriangle className="h-6 w-6 text-[#ef4444] mx-auto mb-2" />
-            <p className="text-[14px] text-[#fafafa]">{error}</p>
+          <div className="p-6 bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#fecaca] dark:border-[#ef4444]/30 rounded-[16px] text-center">
+            <AlertTriangle className="h-6 w-6 text-[#dc2626] dark:text-[#ef4444] mx-auto mb-2" />
+            <p className="text-[14px] text-[#171717] dark:text-[#ededed]">{error}</p>
           </div>
         ) : reports.length === 0 ? (
-          <div className="p-12 bg-[#171717] border border-[#2e2e2e] rounded-xl text-center">
-            <FileText className="h-10 w-10 text-[#898989] mx-auto mb-3 opacity-40" />
-            <h3 className="text-[16px] font-medium text-[#fafafa]">No Reports Generated Yet</h3>
-            <p className="text-[14px] text-[#898989] mt-1 max-w-md mx-auto">
+          <div className="p-12 bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[16px] text-center shadow-none">
+            <FileText className="h-10 w-10 text-[#8f8f8f] mx-auto mb-3 opacity-40" />
+            <h3 className="text-[16px] font-medium text-[#171717] dark:text-[#ededed]">No Reports Generated Yet</h3>
+            <p className="text-[14px] text-[#8f8f8f] mt-1 max-w-md mx-auto">
               Run a scan from the dashboard. Once the scan completes, the Report Agent will automatically publish the audit here.
             </p>
             <Link 
               href="/"
-              className="inline-block mt-4 px-4 py-2 bg-[#3ecf8e] text-[#0f0f0f] text-[13px] font-medium rounded-lg hover:bg-[#33b078] transition-colors"
+              className="inline-block mt-4 px-4 py-2 bg-[#171717] hover:bg-[#000000] dark:bg-[#ededed] dark:hover:bg-[#ffffff] text-[#ffffff] dark:text-[#000000] text-[13px] font-medium rounded-full transition-colors"
             >
               Start New Scan
             </Link>
@@ -142,24 +148,24 @@ export default function ReportsListPage() {
               return (
                 <div 
                   key={r.id}
-                  className="p-6 bg-[#171717] border border-[#2e2e2e] hover:border-[#3ecf8e]/40 rounded-xl transition-all shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6"
+                  className="p-6 bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] hover:border-[#171717]/30 dark:hover:border-[#ededed]/30 rounded-[16px] transition-all shadow-none flex flex-col md:flex-row md:items-center justify-between gap-6"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#3ecf8e]/10 border border-[#3ecf8e]/30 text-[#3ecf8e] text-[11px] font-mono uppercase tracking-wider">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#f0fdf4] dark:bg-[#16a34a]/10 border border-[#bbf7d0] dark:border-[#16a34a]/30 text-[#16a34a] dark:text-[#22c55e] text-[11px] font-mono uppercase tracking-wider">
                         AI Verified Audit
                       </span>
-                      <span className="text-[12px] font-mono text-[#898989] flex items-center gap-1.5">
+                      <span className="text-[12px] font-mono text-[#8f8f8f] flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         {new Date(r.created_at).toLocaleDateString()} at {new Date(r.created_at).toLocaleTimeString()}
                       </span>
                     </div>
 
-                    <h2 className="text-[18px] font-semibold text-[#fafafa] tracking-tight">
+                    <h2 className="text-[18px] font-medium text-[#171717] dark:text-[#ededed] tracking-tight">
                       {domainName}
                     </h2>
                     
-                    <p className="text-[13px] text-[#898989] mt-2 line-clamp-2 leading-relaxed">
+                    <p className="text-[13px] text-[#8f8f8f] mt-2 line-clamp-2 leading-relaxed">
                       {cleanSummary}
                     </p>
                   </div>
@@ -169,15 +175,15 @@ export default function ReportsListPage() {
                       href={`/api/reports/${r.scan_id}?download=json`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3.5 py-2 bg-[#202020] hover:bg-[#282828] text-[#fafafa] border border-[#333] rounded-lg text-[13px] font-medium transition-colors flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 bg-[#ffffff] dark:bg-[#111111] hover:bg-[#fafafa] dark:hover:bg-[#171717] text-[#171717] dark:text-[#ededed] border border-[#ebebeb] dark:border-[#222222] rounded-full text-[13px] font-medium transition-colors flex items-center gap-1.5"
                     >
-                      <Download className="h-3.5 w-3.5 text-[#898989]" />
+                      <Download className="h-3.5 w-3.5 text-[#8f8f8f]" />
                       <span>JSON</span>
                     </a>
                     
                     <Link
                       href={`/reports/${r.scan_id}`}
-                      className="px-4 py-2 bg-[#3ecf8e] hover:bg-[#33b078] text-[#0f0f0f] rounded-lg text-[13px] font-medium transition-colors flex items-center gap-1.5 font-medium"
+                      className="px-4 py-1.5 bg-[#171717] hover:bg-[#000000] dark:bg-[#ededed] dark:hover:bg-[#ffffff] text-[#ffffff] dark:text-[#000000] rounded-full text-[13px] font-medium transition-colors flex items-center gap-1.5 font-sans shadow-none"
                     >
                       <span>View Full Report</span>
                       <ExternalLink className="h-3.5 w-3.5" />
