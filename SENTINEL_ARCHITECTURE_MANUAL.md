@@ -1,8 +1,8 @@
-# Sentinel AI — Master Technical Architecture & System Specification
+# Sentinel — Master Technical Architecture & System Specification
 
 > **Version:** 2.0 (Production Blueprint)  
 > **Classification:** Comprehensive Technical Documentation  
-> **System Scope:** Autonomous AI-Augmented Authorized Penetration Testing & Secret Scanner Platform  
+> **System Scope:** Autonomous AI-Assisted Authorized Penetration Testing & Secret Scanner Platform  
 
 ---
 
@@ -24,23 +24,23 @@
 
 ## 1. Executive Summary & Core Philosophy
 
-**Sentinel AI** is an autonomous, agentic penetration testing and secret scanning platform designed to allow a single security engineer to perform full-spectrum application security assessments at scale. 
+**Sentinel** is an autonomous, agentic offensive security and automated remediation platform designed to allow a single security engineer to perform full-spectrum application security assessments and code patching at scale. 
 
-Modern application security audits are plagued by three systemic bottlenecks:
-1. **Manual Reconnaissance Burden:** Security professionals spend ~40% of their engagement mapping attack surfaces, crawling endpoints, and fingerprinting technologies.
-2. **Scanner Noise & Alert Fatigue:** Traditional automated vulnerability scanners generate vast amounts of findings, where 70–80% are non-exploitable false positives.
-3. **AI Hallucination in Security:** Pure LLM security tools generate plausible-sounding analysis without deterministic verification or verifiable proof-of-concept (PoC) evidence.
+The platform operates on two unified foundational pillars:
+1. **Dynamic Web Surface Penetration Testing:** Automated crawling (Katana), HTTP technology fingerprinting (HTTPx), deterministic vulnerability exploitation (Nuclei), and LLM-driven false-positive elimination.
+2. **GitHub Repository Scanner & Autonomous Code Fixer (Auto-Patcher):** Deep Git repository auditing (TruffleHog & AST code scan), live cryptographic token verification against cloud APIs, and automated AI-assisted patch generation (producing verified `git diff` fixes and automated GitHub Pull Requests).
 
 ### Core Architectural Principles
-* **Evidence Before Claims:** An alert cannot exist in Sentinel AI without reproducible, attached technical evidence (HTTP request/response pairs, commit hashes, or secret verification statuses).
-* **Deterministic Tools Discover, AI Triages:** Deterministic, industry-standard CLI engines (`Katana`, `HTTPx`, `Nuclei`, `TruffleHog`) execute discovery; LLMs perform semantic reasoning, noise filtering, and executive risk synthesis.
+* **Evidence Before Claims:** An alert cannot exist in Sentinel without reproducible, attached technical evidence (HTTP request/response pairs, commit hashes, or active cryptographic token verification statuses).
+* **Deterministic Tools Discover, AI Triages & Fixes:** Deterministic, industry-standard CLI engines (`Katana`, `HTTPx`, `Nuclei`, `TruffleHog`) execute discovery; LLMs perform semantic reasoning, noise filtering, patch synthesis, and executive risk generation.
+* **Closed-Loop Remediation:** Moving beyond passive scanning by generating production-ready code diffs to fix vulnerabilities at the source and dispatching automated GitHub Pull Requests.
 * **Non-Blocking Reactive Telemetry:** Every agent action emits granular event logs into Supabase PostgreSQL, streaming live to the frontend via WebSockets/Supabase Realtime.
 
 ---
 
 ## 2. High-Level System Architecture
 
-Sentinel AI follows an event-driven, decoupled client-worker architecture:
+Sentinel follows an event-driven, decoupled client-worker architecture:
 
 ```mermaid
 flowchart TD
@@ -97,19 +97,21 @@ flowchart TD
 
 ## 3. Technology Stack & Infrastructure
 
-| Layer | Technology | Purpose & Description |
+| Layer / Subsystem | Technology & Libraries | Purpose & Architectural Role |
 | :--- | :--- | :--- |
-| **Framework** | Next.js 16.2.9 (Turbopack) | App Router, Server Actions, API Routes, React 19. |
-| **Frontend Styling** | Tailwind CSS v4 + `@custom-variant dark` | Vercel monochromatic design tokens, 1px border rings, pitch-black dark mode. |
+| **Framework & App Shell** | Next.js 16.2.9 (Turbopack), React 19 | App Router, Server Actions, API Route handlers, React Server Components. |
+| **Frontend & Diff UI** | Tailwind CSS v4, Monaco Diff (`@monaco-editor/react`) | Vercel monochromatic design tokens, 1px border rings, Monaco interactive code diff viewer. |
 | **Theme Engine** | `next-themes` | Zero-FOUC theme switching (`light`, `dark`, `system`) with localStorage persistence. |
-| **Database** | Supabase (PostgreSQL 15+) | Relational persistence, JSONB storage, Row-Level Security. |
-| **Realtime Engine** | Supabase Realtime (WebSockets) | Sub-second event broadcasting from worker to browser console. |
-| **Task Queue** | BullMQ 5.x + `ioredis` | Distributed FIFO job queuing, step transitions, retries, and failure handlers. |
-| **Message Broker** | Redis 7+ | In-memory atomic data store for BullMQ queue state. |
-| **AI Reasoning Engine** | OpenAI-Compatible LLM Client | Zero-shot structured triage, false positive elimination, executive risk summarization. |
-| **Reconnaissance Engine** | ProjectDiscovery `Katana` & `HTTPx` | High-speed headless crawling, URL extraction, and technology stack fingerprinting. |
-| **Vulnerability Scanner** | ProjectDiscovery `Nuclei` v3 | Template-driven deterministic vulnerability identification. |
-| **Secret Detection** | `TruffleHog` v3 | High-entropy regex and verified API token exposure analysis in Git trees. |
+| **Database & Persistence** | Supabase (PostgreSQL 15+) | Relational persistence, JSONB event telemetry, findings, and patch storage with RLS. |
+| **Realtime Engine** | Supabase Realtime (WebSockets) | Sub-second event broadcasting from background workers directly to browser terminals. |
+| **Task Queue & Message Broker** | BullMQ 5.x + Redis 7+ (`ioredis`) | Distributed FIFO job queuing, pipeline state transitions, retries, and failure handlers. |
+| **Web Reconnaissance** | ProjectDiscovery `Katana` & `HTTPx` | Depth-3 headless web crawling, endpoint spidering, and technology stack fingerprinting. |
+| **Vulnerability Scanner** | ProjectDiscovery `Nuclei` v3 | Template-driven deterministic vulnerability exploitation and CVE matching. |
+| **Repo & Secret Detection** | `TruffleHog` v3 + Git AST Parser | High-entropy regex and verified live API token exposure analysis in Git trees. |
+| **Autonomous Code Fixer** | Tree-sitter AST, Unified Diff (`parse-diff`, `diff`), LLM Engine | Syntax tree analysis, vulnerability context extraction, and framework-specific `git diff` patch generation. |
+| **GitHub PR & Git Automation** | `@octokit/rest`, `@octokit/auth-app`, `simple-git` | Automated GitHub branch creation (`sentinel-patch-xxx`), commit generation, and Pull Request dispatch. |
+| **Sandbox & Test Runner** | Isolated Docker / Node VM sandbox, `Jest` / `PyTest` | Automated regression test execution on generated code patches before PR creation. |
+| **AI Reasoning & Triage** | OpenAI-Compatible LLM Client | Zero-shot structured triage, false positive elimination, and executive risk summarization. |
 
 ---
 
@@ -210,7 +212,7 @@ erDiagram
 
 ## 5. Autonomous Agent Architecture & State Machine
 
-Sentinel AI utilizes an autonomous multi-agent pipeline subclassed from `BaseAgent`:
+Sentinel utilizes an autonomous multi-agent pipeline subclassed from `BaseAgent`:
 
 ```
                ┌───────────────┐
@@ -471,7 +473,7 @@ LLM_MODEL=your-chosen-llm-model
 REDIS_URL=redis://localhost:6379
 ```
 
-### Running Sentinel AI Locally
+### Running Sentinel Locally
 ```bash
 # 1. Start Redis Server
 redis-server
