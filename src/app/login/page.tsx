@@ -119,7 +119,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#ffffff] dark:bg-[#000000] p-4 font-sans text-[#171717] dark:text-[#ededed] relative transition-colors duration-150">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 font-sans text-foreground relative transition-colors duration-150">
       
       {/* Top Right Theme Toggle */}
       <div className="absolute top-4 right-4">
@@ -128,21 +128,21 @@ export default function LoginPage() {
 
       {/* Header outside the card */}
       <div className="mb-8 flex flex-col items-center space-y-3 text-center">
-        <div className="h-10 w-10 rounded-[10px] bg-[#171717] dark:bg-[#ededed] flex items-center justify-center text-white dark:text-[#000000]">
+        <div className="h-10 w-10 rounded-[10px] bg-primary flex items-center justify-center text-primary-foreground">
           <Shield className="h-5 w-5" fill="currentColor" />
         </div>
         <div className="space-y-1">
-          <h1 className="text-[24px] font-medium tracking-tight text-[#171717] dark:text-[#ededed]">
+          <h1 className="text-[24px] font-semibold tracking-tight text-foreground">
             {isResettingPassword ? 'Reset Password' : (isSignUp ? 'Create your account' : 'Welcome to Sentinel')}
           </h1>
-          <p className="text-[14px] text-[#8f8f8f]">
+          <p className="text-[14px] text-muted-foreground">
             {isResettingPassword ? 'Enter your email to receive a reset link' : (isSignUp ? 'Register to start scanning targets' : 'Sign in to access your operator portal')}
           </p>
         </div>
       </div>
 
-      {/* The Vercel Card */}
-      <div className="w-full max-w-[400px] bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[16px] p-8 shadow-none">
+      {/* The Sentinel Card */}
+      <div className="w-full max-w-[400px] bg-card border border-border rounded-[6px] p-8 shadow-none">
         
         {!isResettingPassword && (
           <>
@@ -150,7 +150,7 @@ export default function LoginPage() {
               type="button" 
               onClick={handleGoogleLogin} 
               disabled={loading}
-              className="w-full flex items-center justify-center h-[40px] rounded-full bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[14px] text-[#171717] dark:text-[#ededed] font-medium hover:bg-[#fafafa] dark:hover:bg-[#171717] transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full flex items-center justify-center h-[40px] rounded-[6px] bg-card border border-border text-[14px] text-foreground font-normal hover:bg-secondary transition-all disabled:opacity-50 cursor-pointer shadow-none"
             >
               <svg className="mr-2.5 h-4 w-4" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -163,10 +163,10 @@ export default function LoginPage() {
 
             <div className="mt-6 mb-6 relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-[#ebebeb] dark:border-[#222222]" />
+                <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-[12px]">
-                <span className="bg-[#ffffff] dark:bg-[#0a0a0a] px-4 text-[#8f8f8f]">
+                <span className="bg-card px-4 text-muted-foreground">
                   or continue with email
                 </span>
               </div>
@@ -178,34 +178,34 @@ export default function LoginPage() {
           
           {isSignUp && (
             <div className="space-y-1.5">
-              <label htmlFor="name" className="text-[13px] text-[#171717] dark:text-[#ededed] font-medium">Full Name</label>
+              <label htmlFor="name" className="text-[13px] text-foreground font-medium">Full Name</label>
               <input 
                 id="name" 
                 type="text" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-[40px] px-3 bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[#171717] dark:text-[#ededed] text-[14px] rounded-[8px] focus:outline-none focus:border-[#171717] dark:focus:border-[#ededed] focus:ring-1 focus:ring-[#171717] dark:focus:ring-[#ededed] transition-all placeholder-[#8f8f8f]"
+                className="w-full h-[40px] px-3 bg-secondary border border-border text-foreground text-[14px] rounded-[8px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder-muted-foreground"
               />
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label htmlFor="email" className="text-[13px] text-[#171717] dark:text-[#ededed] font-medium">Email Address</label>
+            <label htmlFor="email" className="text-[13px] text-foreground font-medium">Email Address</label>
             <input 
               id="email" 
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-[40px] px-3 bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[#171717] dark:text-[#ededed] text-[14px] rounded-[8px] focus:outline-none focus:border-[#171717] dark:focus:border-[#ededed] focus:ring-1 focus:ring-[#171717] dark:focus:ring-[#ededed] transition-all placeholder-[#8f8f8f]"
+              className="w-full h-[40px] px-3 bg-secondary border border-border text-foreground text-[14px] rounded-[8px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder-muted-foreground"
             />
           </div>
           {!isResettingPassword && (
             <>
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="text-[13px] text-[#171717] dark:text-[#ededed] font-medium">Password</label>
+                  <label htmlFor="password" className="text-[13px] text-foreground font-medium">Password</label>
                   {!isSignUp && (
-                    <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsResettingPassword(true); }} className="text-[12px] text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors">
+                    <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsResettingPassword(true); }} className="text-[12px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                       Forgot Password?
                     </button>
                   )}
@@ -215,47 +215,47 @@ export default function LoginPage() {
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-[40px] px-3 bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[#171717] dark:text-[#ededed] text-[14px] rounded-[8px] focus:outline-none focus:border-[#171717] dark:focus:border-[#ededed] focus:ring-1 focus:ring-[#171717] dark:focus:ring-[#ededed] transition-all placeholder-[#8f8f8f]"
+                  className="w-full h-[40px] px-3 bg-secondary border border-border text-foreground text-[14px] rounded-[8px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder-muted-foreground"
                 />
               </div>
             </>
           )}
 
           {error && (
-            <div className="text-[13px] font-medium text-[#dc2626] dark:text-[#ef4444] bg-[#fef2f2] dark:bg-[#ef4444]/10 border border-[#fecaca] dark:border-[#ef4444]/30 rounded-[8px] p-2.5 text-center">
+            <div className="text-[13px] font-medium text-destructive bg-destructive/10 border border-destructive/20 rounded-[8px] p-2.5 text-center">
               {error}
             </div>
           )}
 
           {successMsg && (
-            <div className="text-[13px] font-medium text-[#16a34a] dark:text-[#22c55e] bg-[#f0fdf4] dark:bg-[#16a34a]/10 border border-[#bbf7d0] dark:border-[#16a34a]/30 rounded-[8px] p-2.5 text-center">
+            <div className="text-[13px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-[8px] p-2.5 text-center">
               {successMsg}
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="w-full mt-2 bg-[#171717] hover:bg-[#000000] dark:bg-[#ededed] dark:hover:bg-[#ffffff] text-[#ffffff] dark:text-[#000000] rounded-full h-[40px] text-[14px] font-medium transition-colors disabled:opacity-50 cursor-pointer shadow-none">
+          <button type="submit" disabled={loading} className="w-full mt-2 bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground rounded-[6px] h-[40px] text-[14px] font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-none">
             {loading ? 'Processing...' : (isResettingPassword ? 'Send Reset Link' : (isSignUp ? 'Sign Up' : 'Sign In'))}
           </button>
         </form>
 
       </div>
 
-      <div className="mt-8 text-center text-[14px] text-[#8f8f8f]">
+      <div className="mt-8 text-center text-[14px] text-muted-foreground">
         {isResettingPassword ? (
-          <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsResettingPassword(false); }} className="text-[#171717] dark:text-[#ededed] hover:underline transition-colors font-medium cursor-pointer">
+          <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsResettingPassword(false); }} className="text-primary hover:underline transition-colors font-medium cursor-pointer">
             Back to login
           </button>
         ) : isSignUp ? (
           <>
             Already have an account?{' '}
-            <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsSignUp(false); }} className="text-[#171717] dark:text-[#ededed] hover:underline transition-colors font-medium cursor-pointer">
+            <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsSignUp(false); }} className="text-primary hover:underline transition-colors font-medium cursor-pointer">
               Sign In
             </button>
           </>
         ) : (
           <>
             Don't have an account?{' '}
-            <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsSignUp(true); }} className="text-[#171717] dark:text-[#ededed] hover:underline transition-colors font-medium cursor-pointer">
+            <button type="button" onClick={() => { setError(null); setSuccessMsg(null); setIsSignUp(true); }} className="text-primary hover:underline transition-colors font-medium cursor-pointer">
               Sign Up
             </button>
           </>

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Sentinel — Autonomous Security Operations",
-  description: "AI-augmented security testing and operational intelligence platform.",
+  description: "AI-assisted security testing and operational intelligence platform.",
 };
 
 export default function RootLayout({

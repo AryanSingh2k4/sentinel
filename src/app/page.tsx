@@ -152,25 +152,25 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#ffffff] dark:bg-[#000000] font-sans text-[#171717] dark:text-[#ededed] transition-colors duration-150">
+    <div className="min-h-screen bg-background font-sans text-foreground transition-colors duration-150">
       {/* Top Navigation */}
-      <nav className="border-b border-[#ebebeb] dark:border-[#222222] bg-[#ffffff] dark:bg-[#000000] sticky top-0 z-40">
+      <nav className="border-b border-border bg-background sticky top-0 z-40">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 items-center justify-between">
             <div className="flex items-center space-x-8">
               <Link href="/" className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-[6px] bg-[#171717] dark:bg-[#ededed] flex items-center justify-center text-white dark:text-[#000000]">
+                <div className="h-6 w-6 rounded-[6px] bg-primary flex items-center justify-center text-primary-foreground">
                   <Shield className="h-3.5 w-3.5" fill="currentColor" />
                 </div>
-                <span className="font-medium tracking-tight text-[#171717] dark:text-[#ededed] text-[15px]">Sentinel</span>
+                <span className="font-medium tracking-tight text-foreground text-[15px]">Sentinel</span>
               </Link>
               <div className="hidden md:flex space-x-6 text-[14px] font-medium">
-                <Link href="/" className="text-[#171717] dark:text-[#ededed] border-b-2 border-[#171717] dark:border-[#ededed] py-[15px]">Dashboard</Link>
-                <Link href="/github-scanner" className="text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors py-[15px] flex items-center gap-1.5">
+                <Link href="/" className="text-foreground border-b-2 border-primary py-[15px]">Dashboard</Link>
+                <Link href="/github-scanner" className="text-muted-foreground hover:text-foreground transition-colors py-[15px] flex items-center gap-1.5">
                   <span>GitHub Scanner</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#fafafa] dark:bg-[#111111] text-[#171717] dark:text-[#ededed] border border-[#ebebeb] dark:border-[#222222]">Secrets</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-foreground border border-border">Secrets</span>
                 </Link>
-                <Link href="/reports" className="text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors py-[15px]">Reports</Link>
+                <Link href="/reports" className="text-muted-foreground hover:text-foreground transition-colors py-[15px]">Reports</Link>
               </div>
             </div>
             
@@ -183,22 +183,22 @@ export default function Dashboard() {
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-[#fafafa] dark:hover:bg-[#111111] border border-transparent hover:border-[#ebebeb] dark:hover:border-[#222222] transition-colors focus:outline-none cursor-pointer"
                 >
-                  <div className="h-7 w-7 rounded-full bg-[#fafafa] dark:bg-[#111111] flex items-center justify-center border border-[#ebebeb] dark:border-[#222222]">
-                    <User className="h-3.5 w-3.5 text-[#4d4d4d] dark:text-[#ededed]" />
+                  <div className="h-7 w-7 rounded-full bg-secondary flex items-center justify-center border border-border">
+                    <User className="h-3.5 w-3.5 text-foreground" />
                   </div>
-                  <ChevronDown className="h-3 w-3 text-[#8f8f8f]" />
+                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] shadow-lg py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    <div className="px-4 py-3 border-b border-[#ebebeb] dark:border-[#222222]">
-                      <p className="text-[11px] text-[#8f8f8f] font-medium uppercase tracking-wider">Signed in as</p>
-                      <p className="text-[13px] text-[#171717] dark:text-[#ededed] font-medium truncate mt-0.5">{userEmail}</p>
+                  <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-[12px] shadow-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="px-4 py-3 border-b border-border">
+                      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Signed in as</p>
+                      <p className="text-[13px] text-foreground font-medium truncate mt-0.5">{userEmail}</p>
                     </div>
-                    <div className="border-t border-[#ebebeb] dark:border-[#222222] py-1">
+                    <div className="border-t border-border py-1">
                       <button 
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-[13px] text-[#dc2626] dark:text-[#ef4444] hover:bg-[#fef2f2] dark:hover:bg-[#ef4444]/10 transition-colors flex items-center cursor-pointer"
+                        className="w-full text-left px-4 py-2 text-[13px] text-destructive hover:bg-destructive/10 transition-colors flex items-center cursor-pointer"
                       >
                         <LogOut className="h-3.5 w-3.5 mr-2" />
                         Log out
@@ -218,8 +218,8 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-[24px] font-medium text-[#171717] dark:text-[#ededed] tracking-tight">Security Overview</h1>
-            <p className="text-[14px] text-[#8f8f8f] mt-0.5">Autonomous security posture and threat intelligence monitoring.</p>
+            <h1 className="text-[24px] font-semibold text-foreground tracking-tight">Security Overview</h1>
+            <p className="text-[14px] text-muted-foreground mt-0.5">Autonomous security posture and threat intelligence monitoring.</p>
           </div>
           <button 
             onClick={() => {
@@ -227,7 +227,7 @@ export default function Dashboard() {
               setScanError(null);
               setScanModalOpen(true);
             }}
-            className="bg-[#171717] hover:bg-[#000000] dark:bg-[#ededed] dark:hover:bg-[#ffffff] text-[#ffffff] dark:text-[#000000] rounded-full h-[36px] px-5 text-[14px] font-medium transition-all shadow-none flex items-center gap-1.5 cursor-pointer"
+            className="bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground rounded-[6px] h-[36px] px-5 text-[14px] font-semibold transition-all shadow-none flex items-center gap-1.5 cursor-pointer"
           >
             <span>New Scan</span>
           </button>
@@ -236,40 +236,40 @@ export default function Dashboard() {
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           
-          <div className="bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] p-6 hover:border-[#171717]/30 dark:hover:border-[#ededed]/30 transition-all">
+          <div className="bg-card border border-border rounded-[6px] p-6 hover:border-primary/40 transition-all shadow-none">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[13px] font-medium text-[#4d4d4d] dark:text-[#a1a1a1]">Active Scans</h3>
-              <Activity className="h-4 w-4 text-[#171717] dark:text-[#ededed]" />
+              <h3 className="text-[13px] font-medium text-muted-foreground">Active Scans</h3>
+              <Activity className="h-4 w-4 text-foreground" />
             </div>
-            <div className="text-[32px] font-medium tracking-tight text-[#171717] dark:text-[#ededed] mb-1 leading-none">{scans.filter(s => ['QUEUED', 'RECON', 'ATTACK'].includes(s.status)).length}</div>
-            <p className="text-[13px] text-[#8f8f8f]">Running concurrently</p>
+            <div className="text-[32px] font-semibold tracking-tight text-foreground mb-1 leading-none">{scans.filter(s => ['QUEUED', 'RECON', 'ATTACK'].includes(s.status)).length}</div>
+            <p className="text-[13px] text-muted-foreground">Running concurrently</p>
           </div>
 
-          <div className="bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] p-6 hover:border-[#171717]/30 dark:hover:border-[#ededed]/30 transition-all">
+          <div className="bg-card border border-border rounded-[6px] p-6 hover:border-primary/40 transition-all shadow-none">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[13px] font-medium text-[#4d4d4d] dark:text-[#a1a1a1]">Critical Findings</h3>
-              <AlertTriangle className={`h-4 w-4 ${findings.filter(f => f.severity === 'critical' || f.severity === 'high').length > 0 ? 'text-[#dc2626] dark:text-[#ef4444]' : 'text-[#8f8f8f]'}`} />
+              <h3 className="text-[13px] font-medium text-muted-foreground">Critical Findings</h3>
+              <AlertTriangle className={`h-4 w-4 ${findings.filter(f => f.severity === 'critical' || f.severity === 'high').length > 0 ? 'text-destructive' : 'text-muted-foreground'}`} />
             </div>
-            <div className="text-[32px] font-medium tracking-tight text-[#171717] dark:text-[#ededed] mb-1 leading-none">{findings.filter(f => f.severity === 'critical' || f.severity === 'high').length}</div>
-            <p className="text-[13px] text-[#8f8f8f]">High & Critical severity</p>
+            <div className="text-[32px] font-semibold tracking-tight text-foreground mb-1 leading-none">{findings.filter(f => f.severity === 'critical' || f.severity === 'high').length}</div>
+            <p className="text-[13px] text-muted-foreground">High & Critical severity</p>
           </div>
 
-          <div className="bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] p-6 hover:border-[#171717]/30 dark:hover:border-[#ededed]/30 transition-all">
+          <div className="bg-card border border-border rounded-[6px] p-6 hover:border-primary/40 transition-all shadow-none">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[13px] font-medium text-[#4d4d4d] dark:text-[#a1a1a1]">Pending Reviews</h3>
-              <Clock className="h-4 w-4 text-[#d97706] dark:text-[#f59e0b]" />
+              <h3 className="text-[13px] font-medium text-muted-foreground">Pending Reviews</h3>
+              <Clock className="h-4 w-4 text-amber-500" />
             </div>
-            <div className="text-[32px] font-medium tracking-tight text-[#171717] dark:text-[#ededed] mb-1 leading-none">{findings.length}</div>
-            <p className="text-[13px] text-[#8f8f8f]">Awaiting validation</p>
+            <div className="text-[32px] font-semibold tracking-tight text-foreground mb-1 leading-none">{findings.length}</div>
+            <p className="text-[13px] text-muted-foreground">Awaiting validation</p>
           </div>
 
-          <div className="bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] p-6 hover:border-[#171717]/30 dark:hover:border-[#ededed]/30 transition-all">
+          <div className="bg-card border border-border rounded-[6px] p-6 hover:border-primary/40 transition-all shadow-none">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[13px] font-medium text-[#4d4d4d] dark:text-[#a1a1a1]">Verified Issues</h3>
-              <FileText className="h-4 w-4 text-[#8f8f8f]" />
+              <h3 className="text-[13px] font-medium text-muted-foreground">Verified Issues</h3>
+              <FileText className="h-4 w-4 text-muted-foreground" />
             </div>
-            <div className="text-[32px] font-medium tracking-tight text-[#171717] dark:text-[#ededed] mb-1 leading-none">{confirmedFindings.filter(f => f.confirmed).length}</div>
-            <p className="text-[13px] text-[#8f8f8f]">Confirmed vulnerabilities</p>
+            <div className="text-[32px] font-semibold tracking-tight text-foreground mb-1 leading-none">{confirmedFindings.filter(f => f.confirmed).length}</div>
+            <p className="text-[13px] text-muted-foreground">Confirmed vulnerabilities</p>
           </div>
         </div>
 
@@ -277,23 +277,23 @@ export default function Dashboard() {
         <div className="grid gap-8 md:grid-cols-2">
           
           {/* Active Scans Table */}
-          <div className="bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#ebebeb] dark:border-[#222222] bg-[#fafafa] dark:bg-[#111111]">
-              <h3 className="text-[14px] font-medium text-[#171717] dark:text-[#ededed]">Active Scans</h3>
+          <div className="bg-card border border-border rounded-[6px] overflow-hidden shadow-none">
+            <div className="px-6 py-4 border-b border-border bg-secondary">
+              <h3 className="text-[14px] font-semibold text-foreground">Active Scans</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[14px]">
                 <thead>
-                  <tr className="border-b border-[#ebebeb] dark:border-[#222222] text-[#8f8f8f] dark:text-[#737373] bg-[#fafafa]/50 dark:bg-[#111111]/50 text-[12px] font-medium">
+                  <tr className="border-b border-border text-muted-foreground dark:text-[#737373] bg-[#fafafa]/50 dark:bg-[#111111]/50 text-[12px] font-medium">
                     <th className="px-6 py-3">Scan ID</th>
                     <th className="px-6 py-3">Target</th>
                     <th className="px-6 py-3">Status</th>
                     <th className="px-6 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ebebeb] dark:divide-[#222222] text-[#4d4d4d] dark:text-[#a1a1a1]">
+                <tbody className="divide-y divide-[#ebebeb] dark:divide-[#222222] text-muted-foreground">
                   {scans.length === 0 && (
-                    <tr><td colSpan={4} className="px-6 py-8 text-center text-[#8f8f8f] text-[13px]">No active scans found.</td></tr>
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground text-[13px]">No active scans found.</td></tr>
                   )}
                   {scans.map((scan) => {
                     let domainName = 'Unknown Target';
@@ -307,15 +307,15 @@ export default function Dashboard() {
 
                     return (
                       <tr key={scan.id} className="hover:bg-[#fafafa] dark:hover:bg-[#111111] transition-colors">
-                        <td className="px-6 py-4 font-mono text-[12px] text-[#8f8f8f]" title={scan.id}>{scan.id.substring(0, 8)}...</td>
-                        <td className="px-6 py-4 font-medium text-[#171717] dark:text-[#ededed]">{domainName}</td>
+                        <td className="px-6 py-4 font-mono text-[12px] text-muted-foreground" title={scan.id}>{scan.id.substring(0, 8)}...</td>
+                        <td className="px-6 py-4 font-medium text-foreground">{domainName}</td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono border ${
-                            scan.status === 'FAILED' ? 'bg-[#fef2f2] dark:bg-[#ef4444]/10 border-[#fecaca] dark:border-[#ef4444]/30 text-[#dc2626] dark:text-[#ef4444]' :
-                            scan.status === 'QUEUED' ? 'bg-[#fafafa] dark:bg-[#111111] border-[#ebebeb] dark:border-[#222222] text-[#8f8f8f]' :
-                            scan.status === 'COMPLETED' ? 'bg-[#f0fdf4] dark:bg-[#16a34a]/10 border-[#bbf7d0] dark:border-[#16a34a]/30 text-[#16a34a] dark:text-[#22c55e]' :
-                            scan.status === 'SECRETS' || scan.status === 'SECRET_SCAN' ? 'bg-[#f5f3ff] dark:bg-[#7c3aed]/10 border-[#ddd6fe] dark:border-[#7c3aed]/30 text-[#7c3aed] dark:text-[#a78bfa]' :
-                            'bg-[#fffbeb] dark:bg-[#d97706]/10 border-[#fde68a] dark:border-[#d97706]/30 text-[#d97706] dark:text-[#f59e0b]'
+                          <span className={`px-2 py-0.5 rounded-[4px] text-[11px] font-mono border ${
+                            scan.status === 'FAILED' ? 'bg-destructive/10 border-destructive/30 text-destructive' :
+                            scan.status === 'QUEUED' ? 'bg-secondary border-border text-muted-foreground' :
+                            scan.status === 'COMPLETED' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400' :
+                            scan.status === 'SECRETS' || scan.status === 'SECRET_SCAN' ? 'bg-primary/10 border-primary/30 text-primary' :
+                            'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
                           }`}>
                             {scan.status || 'QUEUED'}
                           </span>
@@ -323,15 +323,15 @@ export default function Dashboard() {
                         <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                           <Link 
                             href={`/scans/${scan.id}`}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#ffffff] dark:bg-[#111111] hover:bg-[#fafafa] dark:hover:bg-[#171717] text-[12px] font-mono text-[#171717] dark:text-[#ededed] border border-[#ebebeb] dark:border-[#222222] transition-all"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary hover:bg-[#fafafa] dark:hover:bg-[#171717] text-[12px] font-mono text-foreground border border-border transition-all"
                             title="Live Scan Console"
                           >
-                            <Activity className="h-3 w-3 text-[#171717] dark:text-[#ededed]" />
+                            <Activity className="h-3 w-3 text-foreground" />
                             <span>Console</span>
                           </Link>
                           <Link 
                             href={`/reports/${scan.id}`}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#ffffff] dark:bg-[#111111] hover:bg-[#fafafa] dark:hover:bg-[#171717] text-[12px] font-mono text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] border border-[#ebebeb] dark:border-[#222222] transition-all"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary hover:bg-[#fafafa] dark:hover:bg-[#171717] text-[12px] font-mono text-muted-foreground hover:text-foreground border border-border transition-all"
                             title="Audit Report"
                           >
                             <FileText className="h-3 w-3" />
@@ -347,44 +347,44 @@ export default function Dashboard() {
           </div>
 
           {/* Discovered Technologies */}
-          <div className="bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#ebebeb] dark:border-[#222222] bg-[#fafafa] dark:bg-[#111111]">
-              <h3 className="text-[14px] font-medium text-[#171717] dark:text-[#ededed]">Discovered Technologies</h3>
+          <div className="bg-card border border-border rounded-[6px] overflow-hidden shadow-none">
+            <div className="px-6 py-4 border-b border-border bg-secondary">
+              <h3 className="text-[14px] font-semibold text-foreground">Discovered Technologies</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[14px]">
                 <thead>
-                  <tr className="border-b border-[#ebebeb] dark:border-[#222222] text-[#8f8f8f] dark:text-[#737373] bg-[#fafafa]/50 dark:bg-[#111111]/50 text-[12px] font-medium">
+                  <tr className="border-b border-border text-muted-foreground dark:text-[#737373] bg-[#fafafa]/50 dark:bg-[#111111]/50 text-[12px] font-medium">
                     <th className="px-6 py-3">Tech ID</th>
                     <th className="px-6 py-3">Technology</th>
                     <th className="px-6 py-3">Confidence</th>
                     <th className="px-6 py-3 text-right">Detected</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ebebeb] dark:divide-[#222222] text-[#4d4d4d] dark:text-[#a1a1a1]">
+                <tbody className="divide-y divide-[#ebebeb] dark:divide-[#222222] text-muted-foreground">
                   {techFindings.length === 0 && (
-                    <tr><td colSpan={4} className="px-6 py-8 text-center text-[#8f8f8f] text-[13px]">No technologies discovered yet.</td></tr>
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground text-[13px]">No technologies discovered yet.</td></tr>
                   )}
                   {(showAllTech ? techFindings : techFindings.slice(0, 5)).map((finding) => (
                     <tr key={finding.id} className="hover:bg-[#fafafa] dark:hover:bg-[#111111] transition-colors">
-                      <td className="px-6 py-4 font-mono text-[12px] text-[#8f8f8f]" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
-                      <td className="px-6 py-4 font-mono text-[12px] font-medium text-[#171717] dark:text-[#ededed]">{finding.technology}</td>
+                      <td className="px-6 py-4 font-mono text-[12px] text-muted-foreground" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
+                      <td className="px-6 py-4 font-mono text-[12px] font-medium text-foreground">{finding.technology}</td>
                       <td className="px-6 py-4">
-                        <span className="text-[12px] font-mono text-[#4d4d4d] dark:text-[#a1a1a1] px-2 py-0.5 rounded bg-[#fafafa] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222]">
+                        <span className="text-[12px] font-mono text-muted-foreground px-2 py-0.5 rounded bg-secondary border border-border">
                           {finding.confidence}%
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right text-[12px] text-[#8f8f8f]">
+                      <td className="px-6 py-4 text-right text-[12px] text-muted-foreground">
                         {finding.created_at ? new Date(finding.created_at).toLocaleTimeString() : 'Just now'}
                       </td>
                     </tr>
                   ))}
                   {techFindings.length > 5 && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-3 text-center border-t border-[#ebebeb] dark:border-[#222222] bg-[#fafafa] dark:bg-[#111111]">
+                      <td colSpan={4} className="px-6 py-3 text-center border-t border-border bg-secondary">
                         <button 
                           onClick={() => setShowAllTech(!showAllTech)}
-                          className="text-[12px] font-medium text-[#171717] dark:text-[#ededed] hover:underline cursor-pointer"
+                          className="text-[12px] font-medium text-foreground hover:underline cursor-pointer"
                         >
                           {showAllTech ? 'Show Less' : `Show All (${techFindings.length})`}
                         </button>
@@ -399,14 +399,14 @@ export default function Dashboard() {
         </div>
 
         {/* Candidate Findings Table */}
-        <div className="bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] overflow-hidden mt-8">
-          <div className="px-6 py-4 border-b border-[#ebebeb] dark:border-[#222222] bg-[#fafafa] dark:bg-[#111111]">
-            <h3 className="text-[14px] font-medium text-[#171717] dark:text-[#ededed]">Candidate Findings (Nuclei Engine)</h3>
+        <div className="bg-card border border-border rounded-[6px] overflow-hidden shadow-none mt-8">
+          <div className="px-6 py-4 border-b border-border bg-secondary">
+            <h3 className="text-[14px] font-semibold text-foreground">Candidate Findings (Nuclei Engine)</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[14px]">
               <thead>
-                <tr className="border-b border-[#ebebeb] dark:border-[#222222] text-[#8f8f8f] dark:text-[#737373] bg-[#fafafa]/50 dark:bg-[#111111]/50 text-[12px] font-medium">
+                <tr className="border-b border-border text-muted-foreground dark:text-[#737373] bg-[#fafafa]/50 dark:bg-[#111111]/50 text-[12px] font-medium">
                   <th className="px-6 py-3">Finding ID</th>
                   <th className="px-6 py-3">Vulnerability</th>
                   <th className="px-6 py-3">Severity</th>
@@ -414,29 +414,29 @@ export default function Dashboard() {
                   <th className="px-6 py-3 text-right">Discovered</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#ebebeb] dark:divide-[#222222] text-[#4d4d4d] dark:text-[#a1a1a1]">
+              <tbody className="divide-y divide-[#ebebeb] dark:divide-[#222222] text-muted-foreground">
                 {findings.length === 0 && (
-                  <tr><td colSpan={5} className="px-6 py-8 text-center text-[#8f8f8f] text-[13px]">No candidate findings yet.</td></tr>
+                  <tr><td colSpan={5} className="px-6 py-8 text-center text-muted-foreground text-[13px]">No candidate findings yet.</td></tr>
                 )}
                 {findings.map((finding) => (
                   <tr key={finding.id} className="hover:bg-[#fafafa] dark:hover:bg-[#111111] transition-colors">
-                    <td className="px-6 py-4 font-mono text-[12px] text-[#8f8f8f]" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
-                    <td className="px-6 py-4 font-medium text-[#171717] dark:text-[#ededed]">{finding.title}</td>
+                    <td className="px-6 py-4 font-mono text-[12px] text-muted-foreground" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
+                    <td className="px-6 py-4 font-medium text-foreground">{finding.title}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono border ${
-                        finding.severity === 'critical' ? 'bg-[#fef2f2] dark:bg-[#ef4444]/10 border-[#fecaca] dark:border-[#ef4444]/30 text-[#dc2626] dark:text-[#ef4444]' :
-                        finding.severity === 'high' ? 'bg-[#fff7ed] dark:bg-[#ea580c]/10 border-[#ffedd5] dark:border-[#ea580c]/30 text-[#ea580c] dark:text-[#f97316]' :
-                        finding.severity === 'medium' ? 'bg-[#fffbeb] dark:bg-[#d97706]/10 border-[#fde68a] dark:border-[#d97706]/30 text-[#d97706] dark:text-[#f59e0b]' :
-                        finding.severity === 'low' ? 'bg-[#f0f9ff] dark:bg-[#0284c7]/10 border-[#bae6fd] dark:border-[#0284c7]/30 text-[#0284c7] dark:text-[#38bdf8]' :
-                        'bg-[#fafafa] dark:bg-[#111111] border-[#ebebeb] dark:border-[#222222] text-[#8f8f8f]'
+                      <span className={`px-2 py-0.5 rounded-[4px] text-[11px] font-mono border ${
+                        finding.severity === 'critical' ? 'bg-destructive/10 border-destructive/30 text-destructive' :
+                        finding.severity === 'high' ? 'bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400' :
+                        finding.severity === 'medium' ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400' :
+                        finding.severity === 'low' ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400' :
+                        'bg-secondary border-border text-muted-foreground'
                       }`}>
                         {finding.severity.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-[12px] text-[#8f8f8f] max-w-[300px] truncate" title={finding.reasoning}>
+                    <td className="px-6 py-4 text-[12px] text-muted-foreground max-w-[300px] truncate" title={finding.reasoning}>
                       {finding.reasoning}
                     </td>
-                    <td className="px-6 py-4 text-right text-[12px] text-[#8f8f8f]">
+                    <td className="px-6 py-4 text-right text-[12px] text-muted-foreground">
                       {finding.created_at ? new Date(finding.created_at).toLocaleTimeString() : 'Just now'}
                     </td>
                   </tr>
@@ -447,18 +447,18 @@ export default function Dashboard() {
         </div>
 
         {/* AI Confirmed Findings Table */}
-        <div className="bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] overflow-hidden mt-8">
-          <div className="px-6 py-4 border-b border-[#ebebeb] dark:border-[#222222] bg-[#fafafa] dark:bg-[#111111] flex items-center justify-between">
-            <h3 className="text-[14px] font-medium text-[#171717] dark:text-[#ededed] flex items-center gap-2">
-              <Shield className="h-4 w-4 text-[#171717] dark:text-[#ededed]" fill="currentColor" />
-              AI Verified Findings
+        <div className="bg-card border border-border rounded-[6px] overflow-hidden shadow-none mt-8">
+          <div className="px-6 py-4 border-b border-border bg-secondary flex items-center justify-between">
+            <h3 className="text-[14px] font-semibold text-foreground flex items-center gap-2">
+              <Shield className="h-4 w-4 text-foreground" fill="currentColor" />
+              AI-assisted Verified Findings
             </h3>
-            <span className="text-[12px] text-[#8f8f8f]">Validated by Sentinel Triage</span>
+            <span className="text-[12px] text-muted-foreground">Validated by Sentinel Triage</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[14px]">
               <thead>
-                <tr className="border-b border-[#ebebeb] dark:border-[#222222] text-[#8f8f8f] dark:text-[#737373] bg-[#fafafa]/50 dark:bg-[#111111]/50 text-[12px] font-medium">
+                <tr className="border-b border-border text-muted-foreground dark:text-[#737373] bg-[#fafafa]/50 dark:bg-[#111111]/50 text-[12px] font-medium">
                   <th className="px-6 py-3">Finding ID</th>
                   <th className="px-6 py-3">Vulnerability</th>
                   <th className="px-6 py-3">Severity</th>
@@ -466,39 +466,39 @@ export default function Dashboard() {
                   <th className="px-6 py-3 text-right">Validated</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#ebebeb] dark:divide-[#222222] text-[#4d4d4d] dark:text-[#a1a1a1]">
+              <tbody className="divide-y divide-[#ebebeb] dark:divide-[#222222] text-muted-foreground">
                 {confirmedFindings.length === 0 && (
-                  <tr><td colSpan={5} className="px-6 py-8 text-center text-[#8f8f8f] text-[13px]">No findings verified yet.</td></tr>
+                  <tr><td colSpan={5} className="px-6 py-8 text-center text-muted-foreground text-[13px]">No findings verified yet.</td></tr>
                 )}
                 {confirmedFindings.map((finding) => (
                   <tr key={finding.id} className="hover:bg-[#fafafa] dark:hover:bg-[#111111] transition-colors">
-                    <td className="px-6 py-4 font-mono text-[12px] text-[#8f8f8f]" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
-                    <td className="px-6 py-4 font-medium text-[#171717] dark:text-[#ededed]">{finding.candidate_findings?.title || 'Unknown'}</td>
+                    <td className="px-6 py-4 font-mono text-[12px] text-muted-foreground" title={finding.id}>{finding.id.toString().substring(0, 8)}...</td>
+                    <td className="px-6 py-4 font-medium text-foreground">{finding.candidate_findings?.title || 'Unknown'}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono border ${
-                        finding.severity === 'critical' ? 'bg-[#fef2f2] dark:bg-[#ef4444]/10 border-[#fecaca] dark:border-[#ef4444]/30 text-[#dc2626] dark:text-[#ef4444]' :
-                        finding.severity === 'high' ? 'bg-[#fff7ed] dark:bg-[#ea580c]/10 border-[#ffedd5] dark:border-[#ea580c]/30 text-[#ea580c] dark:text-[#f97316]' :
-                        finding.severity === 'medium' ? 'bg-[#fffbeb] dark:bg-[#d97706]/10 border-[#fde68a] dark:border-[#d97706]/30 text-[#d97706] dark:text-[#f59e0b]' :
-                        finding.severity === 'low' ? 'bg-[#f0f9ff] dark:bg-[#0284c7]/10 border-[#bae6fd] dark:border-[#0284c7]/30 text-[#0284c7] dark:text-[#38bdf8]' :
-                        'bg-[#fafafa] dark:bg-[#111111] border-[#ebebeb] dark:border-[#222222] text-[#8f8f8f]'
+                      <span className={`px-2 py-0.5 rounded-[4px] text-[11px] font-mono border ${
+                        finding.severity === 'critical' ? 'bg-destructive/10 border-destructive/30 text-destructive' :
+                        finding.severity === 'high' ? 'bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400' :
+                        finding.severity === 'medium' ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400' :
+                        finding.severity === 'low' ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400' :
+                        'bg-secondary border-border text-muted-foreground'
                       }`}>
                         {finding.severity.toUpperCase()}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       {finding.confirmed ? (
-                        <span className="text-[#dc2626] dark:text-[#ef4444] font-medium flex items-center gap-1.5 text-[12px]">
+                        <span className="text-destructive font-medium flex items-center gap-1.5 text-[12px]">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#dc2626] dark:bg-[#ef4444]"></div>
                           VULNERABLE
                         </span>
                       ) : (
-                        <span className="text-[#16a34a] dark:text-[#22c55e] font-medium flex items-center gap-1.5 text-[12px]">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#16a34a] dark:bg-[#22c55e]"></div>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5 text-[12px]">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                           FALSE POSITIVE
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right text-[12px] text-[#8f8f8f]">
+                    <td className="px-6 py-4 text-right text-[12px] text-muted-foreground">
                       {finding.created_at ? new Date(finding.created_at).toLocaleTimeString() : 'Just now'}
                     </td>
                   </tr>
@@ -513,32 +513,32 @@ export default function Dashboard() {
       {/* Custom Scan Modal */}
       {scanModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="w-full max-w-[440px] bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[16px] shadow-2xl p-6 relative">
+          <div className="w-full max-w-[440px] bg-card border border-border rounded-[6px] shadow-none p-6 relative">
             <button 
               onClick={() => setScanModalOpen(false)}
-              className="absolute top-5 right-5 text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors cursor-pointer"
+              className="absolute top-5 right-5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12"/>
               </svg>
             </button>
             
-            <h2 className="text-[18px] font-medium text-[#171717] dark:text-[#ededed] mb-1">Initiate Security Assessment</h2>
-            <p className="text-[13px] text-[#8f8f8f] mb-5">
+            <h2 className="text-[18px] font-medium text-foreground mb-1">Initiate Security Assessment</h2>
+            <p className="text-[13px] text-muted-foreground mb-5">
               {scanType === 'web' 
                 ? 'Launch automated reconnaissance, fingerprinting, and vulnerability scanning.' 
                 : 'Clone repository and execute TruffleHog to detect leaked API keys, tokens, and credentials.'}
             </p>
 
             {/* Target Type Selector */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#fafafa] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] rounded-full mb-4">
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-secondary border border-border rounded-[6px] mb-4">
               <button
                 type="button"
                 onClick={() => setScanType('web')}
-                className={`py-1.5 text-[13px] font-medium rounded-full transition-all cursor-pointer ${
+                className={`py-1.5 text-[13px] font-medium rounded-[6px] transition-all cursor-pointer ${
                   scanType === 'web'
-                    ? 'bg-[#ffffff] dark:bg-[#1f1f1f] text-[#171717] dark:text-[#ededed] shadow-xs border border-[#ebebeb] dark:border-[#333333]'
-                    : 'text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed]'
+                    ? 'bg-card text-foreground shadow-none border border-border'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 Web Application
@@ -546,20 +546,20 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setScanType('git')}
-                className={`py-1.5 text-[13px] font-medium rounded-full transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`py-1.5 text-[13px] font-medium rounded-[6px] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   scanType === 'git'
-                    ? 'bg-[#ffffff] dark:bg-[#1f1f1f] text-[#171717] dark:text-[#ededed] shadow-xs border border-[#ebebeb] dark:border-[#333333]'
-                    : 'text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed]'
+                    ? 'bg-card text-foreground shadow-none border border-border'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <span>GitHub Repo</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#fafafa] dark:bg-[#111111] text-[#171717] dark:text-[#ededed] border border-[#ebebeb] dark:border-[#222222]">Secret</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-secondary text-foreground border border-border">Secret</span>
               </button>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-[13px] font-medium text-[#171717] dark:text-[#ededed] mb-1.5">
+                <label className="block text-[13px] font-medium text-foreground mb-1.5">
                   {scanType === 'web' ? 'Target Domain / URL' : 'Git Repository URL'}
                 </label>
                 <input 
@@ -571,7 +571,7 @@ export default function Dashboard() {
                     if (scanError) setScanError(null);
                   }}
                   placeholder={scanType === 'web' ? 'e.g. hackerone.com or app.example.com' : 'e.g. https://github.com/org/repo.git'}
-                  className="w-full h-[40px] px-3 bg-[#ffffff] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] text-[#171717] dark:text-[#ededed] text-[14px] rounded-[8px] focus:outline-none focus:border-[#171717] dark:focus:border-[#ededed] focus:ring-1 focus:ring-[#171717] dark:focus:ring-[#ededed] transition-all placeholder-[#8f8f8f]"
+                  className="w-full h-[40px] px-3 bg-secondary border border-border text-foreground text-[14px] rounded-[6px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-muted-foreground"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && scanTarget.trim() && !scanLoading) {
                       document.getElementById('start-scan-btn')?.click();
@@ -581,8 +581,8 @@ export default function Dashboard() {
               </div>
 
               {scanError && (
-                <div className="p-2.5 rounded-[8px] bg-[#fef2f2] dark:bg-[#ef4444]/10 border border-[#fecaca] dark:border-[#ef4444]/30 text-[#dc2626] dark:text-[#ef4444] text-[13px] flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-[#dc2626] dark:text-[#ef4444]" />
+                <div className="p-2.5 rounded-[8px] bg-destructive/10 border border-destructive/30 text-destructive text-[13px] flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />
                   <span>{scanError}</span>
                 </div>
               )}
@@ -591,7 +591,7 @@ export default function Dashboard() {
                 <button 
                   onClick={() => setScanModalOpen(false)}
                   disabled={scanLoading}
-                  className="px-4 h-[36px] text-[14px] font-medium text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] transition-colors disabled:opacity-50 cursor-pointer"
+                  className="px-4 h-[36px] text-[14px] font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -629,11 +629,11 @@ export default function Dashboard() {
                       setScanLoading(false);
                     }
                   }}
-                  className="bg-[#171717] hover:bg-[#000000] dark:bg-[#ededed] dark:hover:bg-[#ffffff] text-[#ffffff] dark:text-[#000000] rounded-full h-[36px] px-5 text-[14px] font-medium transition-all disabled:opacity-50 flex items-center cursor-pointer shadow-none"
+                  className="bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground rounded-[6px] h-[36px] px-5 text-[14px] font-semibold transition-all disabled:opacity-50 flex items-center cursor-pointer shadow-none"
                 >
                   {scanLoading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white dark:text-black" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-foreground" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>

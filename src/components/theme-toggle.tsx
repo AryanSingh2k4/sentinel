@@ -26,14 +26,14 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="h-8 w-8 rounded-full bg-[#fafafa] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222]" />
+      <div className="h-8 w-8 rounded-full bg-secondary border border-border" />
     );
   }
 
   const currentIcon = resolvedTheme === 'dark' ? (
-    <Moon className="h-3.5 w-3.5 text-[#171717] dark:text-[#ededed]" />
+    <Moon className="h-3.5 w-3.5 text-foreground" />
   ) : (
-    <Sun className="h-3.5 w-3.5 text-[#171717] dark:text-[#ededed]" />
+    <Sun className="h-3.5 w-3.5 text-foreground" />
   );
 
   return (
@@ -41,7 +41,7 @@ export function ThemeToggle() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="h-8 w-8 rounded-full bg-[#ffffff] dark:bg-[#0a0a0a] hover:bg-[#fafafa] dark:hover:bg-[#171717] border border-[#ebebeb] dark:border-[#222222] flex items-center justify-center transition-colors focus:outline-none cursor-pointer"
+        className="h-8 w-8 rounded-full bg-card hover:bg-muted border border-border flex items-center justify-center transition-colors focus:outline-none cursor-pointer"
         aria-label="Toggle theme"
         title={`Current theme: ${theme} (Click to change)`}
       >
@@ -49,7 +49,7 @@ export function ThemeToggle() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-36 bg-[#ffffff] dark:bg-[#0a0a0a] border border-[#ebebeb] dark:border-[#222222] rounded-[12px] shadow-lg py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute right-0 mt-2 w-36 bg-popover border border-border rounded-[6px] shadow-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
           <button
             type="button"
             onClick={() => {
@@ -58,15 +58,15 @@ export function ThemeToggle() {
             }}
             className={`w-full text-left px-3 py-1.5 text-[13px] flex items-center justify-between transition-colors ${
               theme === 'light'
-                ? 'text-[#171717] dark:text-[#ededed] font-medium bg-[#fafafa] dark:bg-[#171717]'
-                : 'text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] hover:bg-[#fafafa] dark:hover:bg-[#171717]'
+                ? 'text-foreground font-medium bg-secondary'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
           >
             <div className="flex items-center gap-2">
               <Sun className="h-3.5 w-3.5" />
               <span>Light</span>
             </div>
-            {theme === 'light' && <Check className="h-3.5 w-3.5" />}
+            {theme === 'light' && <Check className="h-3.5 w-3.5 text-primary" />}
           </button>
 
           <button
@@ -77,15 +77,15 @@ export function ThemeToggle() {
             }}
             className={`w-full text-left px-3 py-1.5 text-[13px] flex items-center justify-between transition-colors ${
               theme === 'dark'
-                ? 'text-[#171717] dark:text-[#ededed] font-medium bg-[#fafafa] dark:bg-[#171717]'
-                : 'text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] hover:bg-[#fafafa] dark:hover:bg-[#171717]'
+                ? 'text-foreground font-medium bg-secondary'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
           >
             <div className="flex items-center gap-2">
               <Moon className="h-3.5 w-3.5" />
               <span>Dark</span>
             </div>
-            {theme === 'dark' && <Check className="h-3.5 w-3.5" />}
+            {theme === 'dark' && <Check className="h-3.5 w-3.5 text-primary" />}
           </button>
 
           <button
@@ -96,15 +96,15 @@ export function ThemeToggle() {
             }}
             className={`w-full text-left px-3 py-1.5 text-[13px] flex items-center justify-between transition-colors ${
               theme === 'system'
-                ? 'text-[#171717] dark:text-[#ededed] font-medium bg-[#fafafa] dark:bg-[#171717]'
-                : 'text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed] hover:bg-[#fafafa] dark:hover:bg-[#171717]'
+                ? 'text-foreground font-medium bg-secondary'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
           >
             <div className="flex items-center gap-2">
               <Laptop className="h-3.5 w-3.5" />
               <span>System</span>
             </div>
-            {theme === 'system' && <Check className="h-3.5 w-3.5" />}
+            {theme === 'system' && <Check className="h-3.5 w-3.5 text-primary" />}
           </button>
         </div>
       )}
@@ -121,19 +121,19 @@ export function ThemeSegmentedControl() {
   }, []);
 
   if (!mounted) {
-    return <div className="h-7 w-24 rounded-full bg-[#fafafa] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222]" />;
+    return <div className="h-7 w-24 rounded-full bg-secondary border border-border" />;
   }
 
   return (
-    <div className="flex items-center p-0.5 bg-[#fafafa] dark:bg-[#111111] border border-[#ebebeb] dark:border-[#222222] rounded-full">
+    <div className="flex items-center p-0.5 bg-secondary border border-border rounded-full">
       <button
         type="button"
         onClick={() => setTheme('light')}
         title="Light Mode"
         className={`p-1 rounded-full transition-all cursor-pointer ${
           theme === 'light'
-            ? 'bg-[#ffffff] text-[#171717] shadow-xs'
-            : 'text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed]'
+            ? 'bg-card text-foreground shadow-none'
+            : 'text-muted-foreground hover:text-foreground'
         }`}
       >
         <Sun className="h-3.5 w-3.5" />
@@ -145,8 +145,8 @@ export function ThemeSegmentedControl() {
         title="Dark Mode"
         className={`p-1 rounded-full transition-all cursor-pointer ${
           theme === 'dark'
-            ? 'bg-[#171717] text-[#ededed] shadow-xs'
-            : 'text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed]'
+            ? 'bg-card text-foreground shadow-none'
+            : 'text-muted-foreground hover:text-foreground'
         }`}
       >
         <Moon className="h-3.5 w-3.5" />
@@ -158,8 +158,8 @@ export function ThemeSegmentedControl() {
         title="System Preference"
         className={`p-1 rounded-full transition-all cursor-pointer ${
           theme === 'system'
-            ? 'bg-[#ffffff] dark:bg-[#171717] text-[#171717] dark:text-[#ededed] shadow-xs'
-            : 'text-[#8f8f8f] hover:text-[#171717] dark:hover:text-[#ededed]'
+            ? 'bg-card text-foreground shadow-none'
+            : 'text-muted-foreground hover:text-foreground'
         }`}
       >
         <Laptop className="h-3.5 w-3.5" />
