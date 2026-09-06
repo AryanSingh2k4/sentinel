@@ -132,7 +132,7 @@ export default function LoginPage() {
           <Shield className="h-5 w-5" fill="currentColor" />
         </div>
         <div className="space-y-1">
-          <h1 className="text-[24px] font-semibold tracking-tight text-foreground">
+          <h1 className="text-[24px] font-serif font-medium tracking-tight text-foreground">
             {isResettingPassword ? 'Reset Password' : (isSignUp ? 'Create your account' : 'Welcome to Sentinel')}
           </h1>
           <p className="text-[14px] text-muted-foreground">
@@ -142,7 +142,7 @@ export default function LoginPage() {
       </div>
 
       {/* The Sentinel Card */}
-      <div className="w-full max-w-[400px] bg-card border border-border rounded-[6px] p-8 shadow-none">
+      <div className="w-full max-w-[400px] bg-card border border-border rounded-[16px] p-8 shadow-xs">
         
         {!isResettingPassword && (
           <>
@@ -150,7 +150,7 @@ export default function LoginPage() {
               type="button" 
               onClick={handleGoogleLogin} 
               disabled={loading}
-              className="w-full flex items-center justify-center h-[40px] rounded-[6px] bg-card border border-border text-[14px] text-foreground font-normal hover:bg-secondary transition-all disabled:opacity-50 cursor-pointer shadow-none"
+              className="w-full flex items-center justify-center h-[40px] rounded-full bg-card border border-border text-[14px] text-foreground font-medium hover:bg-secondary transition-all disabled:opacity-50 cursor-pointer shadow-xs"
             >
               <svg className="mr-2.5 h-4 w-4" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -233,7 +233,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="w-full mt-2 bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground rounded-[6px] h-[40px] text-[14px] font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-none">
+          <button type="submit" disabled={loading} className="w-full mt-2 bg-primary hover:opacity-90 text-primary-foreground rounded-full h-[40px] text-[14px] font-medium transition-colors disabled:opacity-50 cursor-pointer shadow-xs">
             {loading ? 'Processing...' : (isResettingPassword ? 'Send Reset Link' : (isSignUp ? 'Sign Up' : 'Sign In'))}
           </button>
         </form>

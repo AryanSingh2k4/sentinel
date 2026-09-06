@@ -56,7 +56,7 @@ export default function UpdatePasswordPage() {
           <Shield className="h-5 w-5" fill="currentColor" />
         </div>
         <div className="space-y-1">
-          <h1 className="text-[24px] font-semibold tracking-tight text-foreground">
+          <h1 className="text-[24px] font-serif font-medium tracking-tight text-foreground">
             Update Password
           </h1>
           <p className="text-[14px] text-muted-foreground">
@@ -66,7 +66,7 @@ export default function UpdatePasswordPage() {
       </div>
 
       {/* The Sentinel Card */}
-      <div className="w-full max-w-[400px] bg-card border border-border rounded-[6px] p-8 shadow-none">
+      <div className="w-full max-w-[400px] bg-card border border-border rounded-[16px] p-8 shadow-xs">
         
         <form onSubmit={handleUpdatePassword} className="space-y-4">
           <div className="space-y-1.5">
@@ -96,7 +96,7 @@ export default function UpdatePasswordPage() {
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="w-full mt-2 bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground rounded-[6px] h-[40px] text-[14px] font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-none">
+          <button type="submit" disabled={loading} className="w-full mt-2 bg-primary hover:opacity-90 text-primary-foreground rounded-full h-[40px] text-[14px] font-medium transition-colors disabled:opacity-50 cursor-pointer shadow-xs">
             {loading ? 'Updating...' : 'Update Password'}
           </button>
         </form>

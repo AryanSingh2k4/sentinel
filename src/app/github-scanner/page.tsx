@@ -33,7 +33,8 @@ import {
   Filter,
   X,
   AlertOctagon,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -364,14 +365,14 @@ export default function GitHubScannerPage() {
       <main className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* Scanner Hero / Input Card */}
-        <div className="bg-card border border-border rounded-[6px] p-6 md:p-8 shadow-none relative overflow-hidden">
+        <div className="bg-card border border-border rounded-[12px] p-6 md:p-8 shadow-none relative overflow-hidden">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-secondary border border-border text-foreground text-[12px] font-mono mb-4">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               <span>Deep Git History + Live TruffleHog Engine</span>
             </div>
 
-            <h1 className="text-[26px] md:text-[32px] font-medium text-foreground tracking-tight leading-tight mb-2">
+            <h1 className="text-[28px] md:text-[34px] font-serif font-normal text-foreground tracking-tight leading-tight mb-2">
               GitHub & Git Repository Secret Scanner
             </h1>
             <p className="text-[14px] text-muted-foreground leading-relaxed mb-6">
@@ -398,18 +399,17 @@ export default function GitHubScannerPage() {
                 <button
                   type="submit"
                   disabled={!repoUrl.trim() || startingScan}
-                  className="h-[44px] px-6 bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground rounded-[6px] text-[14px] font-semibold transition-all shadow-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  className="px-6 h-[44px] bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-full text-[14px] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-none"
                 >
                   {startingScan ? (
                     <>
-                      <Activity className="h-4 w-4 animate-spin text-primary-foreground" />
-                      <span>Initiating Scan...</span>
+                      <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />
+                      <span>Cloning & Scanning...</span>
                     </>
                   ) : (
                     <>
                       <Key className="h-4 w-4" />
                       <span>Start Secret Scan</span>
-                      <ArrowRight className="h-3.5 w-3.5 opacity-80" />
                     </>
                   )}
                 </button>
@@ -455,14 +455,14 @@ export default function GitHubScannerPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Total Repositories Audited */}
-          <div className="bg-card border border-border hover:border-primary/40 rounded-[6px] p-5 transition-all shadow-none">
+          <div className="bg-card border border-border hover:border-primary/40 rounded-[12px] p-5 transition-all shadow-none">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[13px] font-medium text-muted-foreground">Repositories Audited</span>
               <div className="h-7 w-7 rounded-full bg-secondary flex items-center justify-center text-primary border border-border">
                 <GitBranch className="h-3.5 w-3.5" />
               </div>
             </div>
-            <div className="text-[28px] font-medium text-foreground tracking-tight mb-1">
+            <div className="text-[32px] font-serif font-normal text-foreground tracking-tight mb-1">
               {metrics.totalRepositoriesAudited}
             </div>
             <p className="text-[12px] text-muted-foreground flex items-center gap-1.5">
@@ -472,7 +472,7 @@ export default function GitHubScannerPage() {
           </div>
 
           {/* Verified Live Keys (Critical Exposure) */}
-          <div className="bg-card border border-destructive/30 hover:border-destructive/50 rounded-[6px] p-5 transition-all shadow-none">
+          <div className="bg-card border border-destructive/30 hover:border-destructive/50 rounded-[12px] p-5 transition-all shadow-none">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[13px] font-medium text-destructive flex items-center gap-1.5">
                 <Flame className="h-3.5 w-3.5" />
@@ -482,7 +482,7 @@ export default function GitHubScannerPage() {
                 <Key className="h-3.5 w-3.5" />
               </div>
             </div>
-            <div className="text-[28px] font-medium text-destructive tracking-tight mb-1">
+            <div className="text-[32px] font-serif font-normal text-destructive tracking-tight mb-1">
               {metrics.verifiedActiveKeysCount}
             </div>
             <p className="text-[12px] text-muted-foreground flex items-center gap-1.5">
@@ -492,14 +492,14 @@ export default function GitHubScannerPage() {
           </div>
 
           {/* Total Secrets Detected */}
-          <div className="bg-card border border-border hover:border-primary/40 rounded-[6px] p-5 transition-all shadow-none">
+          <div className="bg-card border border-border hover:border-primary/40 rounded-[12px] p-5 transition-all shadow-none">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[13px] font-medium text-muted-foreground">Total Secrets Detected</span>
               <div className="h-7 w-7 rounded-full bg-secondary flex items-center justify-center text-foreground border border-border">
                 <Lock className="h-3.5 w-3.5" />
               </div>
             </div>
-            <div className="text-[28px] font-medium text-foreground tracking-tight mb-1">
+            <div className="text-[32px] font-serif font-normal text-foreground tracking-tight mb-1">
               {metrics.totalSecretsCount}
             </div>
             <p className="text-[12px] text-muted-foreground flex items-center gap-1.5">
@@ -509,14 +509,14 @@ export default function GitHubScannerPage() {
           </div>
 
           {/* False Positives Filtered */}
-          <div className="bg-card border border-border hover:border-primary/40 rounded-[6px] p-5 transition-all shadow-none">
+          <div className="bg-card border border-border hover:border-primary/40 rounded-[12px] p-5 transition-all shadow-none">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[13px] font-medium text-muted-foreground">False Positives Filtered</span>
               <div className="h-7 w-7 rounded-full bg-secondary flex items-center justify-center text-[#788c5d] dark:text-[#8ca36f] border border-border">
                 <CheckCircle2 className="h-3.5 w-3.5" />
               </div>
             </div>
-            <div className="text-[28px] font-medium text-[#788c5d] dark:text-[#8ca36f] tracking-tight mb-1">
+            <div className="text-[32px] font-serif font-normal text-[#788c5d] dark:text-[#8ca36f] tracking-tight mb-1">
               {metrics.falsePositivesFilteredCount}
             </div>
             <p className="text-[12px] text-muted-foreground flex items-center gap-1.5">
@@ -529,7 +529,7 @@ export default function GitHubScannerPage() {
 
         {/* Detector Breakdown Pills */}
         {detectorList.length > 0 && (
-          <div className="p-4 bg-secondary/60 border border-border rounded-[6px] flex flex-col md:flex-row md:items-center gap-3">
+          <div className="p-4 bg-card border border-border rounded-[12px] flex flex-col md:flex-row md:items-center gap-3">
             <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider shrink-0 flex items-center gap-1.5">
               <Filter className="h-3.5 w-3.5 text-foreground" />
               <span>Detector Spectrum:</span>
@@ -646,7 +646,7 @@ export default function GitHubScannerPage() {
 
           {/* TAB 1: EXPOSED SECRETS INVENTORY */}
           {activeTab === 'inventory' && (
-            <div className="bg-card border border-border rounded-[6px] overflow-hidden shadow-none">
+            <div className="bg-card border border-border rounded-[12px] overflow-hidden shadow-none">
               {loading ? (
                 <div className="p-16 text-center text-muted-foreground flex items-center justify-center gap-3 font-mono text-[14px]">
                   <Activity className="h-5 w-5 animate-spin text-primary" />
@@ -655,7 +655,7 @@ export default function GitHubScannerPage() {
               ) : filteredSecrets.length === 0 ? (
                 <div className="p-16 text-center">
                   <Key className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-30" />
-                  <h3 className="text-[16px] font-medium text-foreground">
+                  <h3 className="text-[16px] font-serif font-medium text-foreground">
                     {searchQuery || selectedDetector !== 'all' || statusFilter !== 'all'
                       ? 'No Secrets Matched Current Filters'
                       : 'No Exposed Secrets Detected Yet'}
@@ -672,7 +672,7 @@ export default function GitHubScannerPage() {
                         setSelectedDetector('all');
                         setStatusFilter('all');
                       }}
-                      className="mt-4 px-4 py-1.5 bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground text-[13px] font-semibold rounded-[6px] transition-colors cursor-pointer"
+                      className="mt-4 px-4 py-1.5 bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-medium rounded-full transition-colors cursor-pointer"
                     >
                       Clear Filters
                     </button>
@@ -682,7 +682,7 @@ export default function GitHubScannerPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[13px] border-collapse">
                     <thead>
-                      <tr className="border-b border-border bg-secondary text-muted-foreground text-[12px] font-medium">
+                      <tr className="border-b border-border bg-[#faf9f6]/70 dark:bg-[#1f1e1c]/70 text-muted-foreground text-[12px] font-medium font-sans">
                         <th className="px-5 py-3">Detector Type</th>
                         <th className="px-5 py-3">Target Repo</th>
                         <th className="px-5 py-3">File Location</th>
@@ -856,7 +856,7 @@ export default function GitHubScannerPage() {
 
           {/* TAB 2: REPOSITORY SCAN HISTORY */}
           {activeTab === 'history' && (
-            <div className="bg-card border border-border rounded-[6px] overflow-hidden shadow-none">
+            <div className="bg-card border border-border rounded-[12px] overflow-hidden shadow-none">
               {loading ? (
                 <div className="p-16 text-center text-muted-foreground flex items-center justify-center gap-3 font-mono text-[14px]">
                   <Activity className="h-5 w-5 animate-spin text-primary" />
@@ -865,7 +865,7 @@ export default function GitHubScannerPage() {
               ) : scans.length === 0 ? (
                 <div className="p-16 text-center">
                   <GitBranch className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-30" />
-                  <h3 className="text-[16px] font-medium text-foreground">No Repository Scans Found</h3>
+                  <h3 className="text-[16px] font-serif font-medium text-foreground">No Repository Scans Found</h3>
                   <p className="text-[13px] text-muted-foreground mt-1 max-w-md mx-auto">
                     Start a scan by entering a GitHub repository URL above.
                   </p>
@@ -874,7 +874,7 @@ export default function GitHubScannerPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[13px] border-collapse">
                     <thead>
-                      <tr className="border-b border-border bg-secondary text-muted-foreground text-[12px] font-medium">
+                      <tr className="border-b border-border bg-[#faf9f6]/70 dark:bg-[#1f1e1c]/70 text-muted-foreground text-[12px] font-medium font-sans">
                         <th className="px-5 py-3">Scan ID</th>
                         <th className="px-5 py-3">Repository Target</th>
                         <th className="px-5 py-3">Status</th>

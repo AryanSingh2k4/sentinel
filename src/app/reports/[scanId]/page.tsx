@@ -173,7 +173,7 @@ export default function ReportPage() {
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-1.5 bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground rounded-[6px] text-[13px] font-medium transition-colors cursor-pointer shadow-none"
+              className="flex items-center gap-2 px-4 py-1.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-full text-[13px] font-medium transition-colors cursor-pointer shadow-none"
             >
               <Printer className="h-3.5 w-3.5" />
               <span>Print / Save PDF</span>
@@ -186,7 +186,7 @@ export default function ReportPage() {
       <main className="max-w-6xl mx-auto px-6 pt-10">
         
         {/* Document Header Card */}
-        <div className="p-8 bg-card border border-border rounded-[6px] mb-8 relative overflow-hidden shadow-none">
+        <div className="p-8 bg-card border border-border rounded-[12px] mb-8 relative overflow-hidden shadow-none">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border">
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -197,7 +197,7 @@ export default function ReportPage() {
                   Scan ID: {meta.scanId.slice(0, 8)}
                 </span>
               </div>
-              <h1 className="text-[28px] font-semibold tracking-tight text-foreground">
+              <h1 className="text-[28px] md:text-[34px] font-serif font-normal tracking-tight text-foreground">
                 {meta.target}
               </h1>
               <p className="text-[14px] text-muted-foreground mt-1 flex items-center gap-2">
@@ -222,30 +222,30 @@ export default function ReportPage() {
 
           {/* Quick Metrics Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
-            <div className="p-4 bg-secondary/50 border border-border rounded-[12px]">
+            <div className="p-4 bg-[#faf9f6]/70 dark:bg-[#1f1e1c]/70 border border-border rounded-[12px]">
               <div className="text-[12px] font-mono text-muted-foreground">URLs Crawled</div>
-              <div className="text-[22px] font-semibold text-foreground mt-1">{summary.urlsMapped}</div>
+              <div className="text-[26px] font-serif font-normal text-foreground mt-1">{summary.urlsMapped}</div>
             </div>
-            <div className="p-4 bg-secondary/50 border border-border rounded-[12px]">
+            <div className="p-4 bg-[#faf9f6]/70 dark:bg-[#1f1e1c]/70 border border-border rounded-[12px]">
               <div className="text-[12px] font-mono text-muted-foreground">Tech Stack Identified</div>
-              <div className="text-[22px] font-semibold text-foreground mt-1">{summary.technologiesFound}</div>
+              <div className="text-[26px] font-serif font-normal text-foreground mt-1">{summary.technologiesFound}</div>
             </div>
-            <div className="p-4 bg-secondary/50 border border-border rounded-[12px]">
+            <div className="p-4 bg-[#faf9f6]/70 dark:bg-[#1f1e1c]/70 border border-border rounded-[12px]">
               <div className="text-[12px] font-mono text-muted-foreground">Candidate Findings</div>
-              <div className="text-[22px] font-semibold text-foreground mt-1">{summary.candidateFindingsCount}</div>
+              <div className="text-[26px] font-serif font-normal text-foreground mt-1">{summary.candidateFindingsCount}</div>
             </div>
             <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-[12px]">
               <div className="text-[12px] font-mono text-emerald-600 dark:text-emerald-400">AI Noise Reduction</div>
-              <div className="text-[22px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1">{fpReductionRate}%</div>
+              <div className="text-[26px] font-serif font-normal text-emerald-600 dark:text-emerald-400 mt-1">{fpReductionRate}%</div>
             </div>
           </div>
         </div>
 
         {/* Executive Risk Summary */}
-        <section className="mb-8 p-6 bg-card border border-border rounded-[6px] shadow-none">
+        <section className="mb-8 p-6 bg-card border border-border rounded-[12px] shadow-none">
           <div className="flex items-center gap-2 mb-3">
             <FileText className="h-4 w-4 text-primary" />
-            <h2 className="text-[14px] font-semibold text-foreground uppercase tracking-wide">
+            <h2 className="text-[15px] font-serif font-medium text-foreground">
               Executive Risk Summary
             </h2>
           </div>
@@ -265,7 +265,7 @@ export default function ReportPage() {
                 <span>CRITICAL</span>
                 <span className="w-2 h-2 rounded-full bg-destructive" />
               </div>
-              <div className="text-[24px] font-semibold text-foreground mt-2">
+              <div className="text-[26px] font-serif font-normal text-foreground mt-2">
                 {summary.severityBreakdown.critical}
               </div>
             </div>
@@ -274,7 +274,7 @@ export default function ReportPage() {
                 <span>HIGH</span>
                 <span className="w-2 h-2 rounded-full bg-orange-500" />
               </div>
-              <div className="text-[24px] font-semibold text-foreground mt-2">
+              <div className="text-[26px] font-serif font-normal text-foreground mt-2">
                 {summary.severityBreakdown.high}
               </div>
             </div>
@@ -283,7 +283,7 @@ export default function ReportPage() {
                 <span>MEDIUM</span>
                 <span className="w-2 h-2 rounded-full bg-amber-500" />
               </div>
-              <div className="text-[24px] font-semibold text-foreground mt-2">
+              <div className="text-[26px] font-serif font-normal text-foreground mt-2">
                 {summary.severityBreakdown.medium}
               </div>
             </div>
@@ -292,7 +292,7 @@ export default function ReportPage() {
                 <span>LOW</span>
                 <span className="w-2 h-2 rounded-full bg-sky-500" />
               </div>
-              <div className="text-[24px] font-semibold text-foreground mt-2">
+              <div className="text-[26px] font-serif font-normal text-foreground mt-2">
                 {summary.severityBreakdown.low}
               </div>
             </div>
@@ -300,10 +300,10 @@ export default function ReportPage() {
         </section>
 
         {/* Identified Technologies */}
-        <section className="mb-8 p-6 bg-card border border-border rounded-[6px] shadow-none">
+        <section className="mb-8 p-6 bg-card border border-border rounded-[12px] shadow-none">
           <div className="flex items-center gap-2 mb-3">
             <Layers className="h-4 w-4 text-primary" />
-            <h2 className="text-[14px] font-semibold text-foreground uppercase tracking-wide">
+            <h2 className="text-[15px] font-serif font-medium text-foreground">
               Fingerprinted Attack Surface & Tech Stack
             </h2>
           </div>
@@ -314,7 +314,7 @@ export default function ReportPage() {
               {technologies.map(t => (
                 <span 
                   key={t.id}
-                  className="px-3 py-1 bg-secondary border border-border rounded-[4px] text-[12px] font-mono text-foreground flex items-center gap-1.5"
+                  className="px-3 py-1 bg-secondary border border-border rounded-full text-[12px] font-mono text-foreground flex items-center gap-1.5"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                   {t.technology}
@@ -329,7 +329,7 @@ export default function ReportPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-destructive" fill="currentColor" />
-              <h2 className="text-[16px] font-semibold text-foreground tracking-tight">
+              <h2 className="text-[18px] font-serif font-medium text-foreground tracking-tight">
                 Confirmed High-Risk Vulnerabilities
               </h2>
             </div>
@@ -339,9 +339,9 @@ export default function ReportPage() {
           </div>
 
           {verifiedFindings.length === 0 ? (
-            <div className="p-6 bg-card border border-emerald-500/20 rounded-[6px] text-center shadow-none">
+            <div className="p-6 bg-card border border-emerald-500/20 rounded-[12px] text-center shadow-none">
               <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-2" />
-              <h3 className="text-[15px] font-semibold text-foreground">No Critical Flaws Confirmed</h3>
+              <h3 className="text-[15px] font-serif font-medium text-foreground">No Critical Flaws Confirmed</h3>
               <p className="text-[13px] text-muted-foreground mt-1">
                 Sentinel verified all candidate alerts and filtered out noisy findings.
               </p>

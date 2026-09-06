@@ -859,7 +859,7 @@ export default function ScanConsolePage() {
           {/* Main Console Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start sm:items-center gap-4">
-              <div className="h-12 w-12 rounded-[6px] bg-secondary border border-border flex items-center justify-center shrink-0 shadow-none">
+              <div className="h-12 w-12 rounded-[12px] bg-secondary border border-border flex items-center justify-center shrink-0 shadow-none">
                 {scan.target_type === 'git' ? (
                   <GitBranch className="h-6 w-6 text-foreground" />
                 ) : (
@@ -869,7 +869,7 @@ export default function ScanConsolePage() {
 
               <div>
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h1 className="text-[20px] sm:text-[22px] font-semibold text-foreground tracking-tight">
+                  <h1 className="text-[22px] sm:text-[26px] font-serif font-medium text-foreground tracking-tight">
                     {scan.target}
                   </h1>
                   <a
@@ -969,11 +969,11 @@ export default function ScanConsolePage() {
 
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
         {/* 3. VISUAL PIPELINE STEPPER */}
-        <div className="p-5 rounded-[6px] bg-card border border-border shadow-none">
+        <div className="p-5 rounded-[12px] bg-card border border-border shadow-none">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-primary" />
-              <h2 className="text-[13px] font-semibold text-foreground uppercase tracking-wider">
+              <h2 className="text-[13px] font-sans font-medium text-foreground uppercase tracking-wider">
                 Autonomous Execution Pipeline
               </h2>
             </div>
@@ -1006,7 +1006,7 @@ export default function ScanConsolePage() {
               return (
                 <div
                   key={step.key}
-                  className={`p-4 rounded-[6px] border transition-all duration-200 relative overflow-hidden ${borderClass}`}
+                  className={`p-4 rounded-[10px] border transition-all duration-200 relative overflow-hidden ${borderClass}`}
                 >
                   {/* Top Step Number & Status Indicator */}
                   <div className="flex items-center justify-between mb-2">
@@ -1065,7 +1065,7 @@ export default function ScanConsolePage() {
         {/* 4. MAIN CONTENT SPLIT: TERMINAL LOG STREAM + DISCOVERY TABS */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* LEFT: LIVE TERMINAL LOG STREAM (7 Cols) */}
-          <div className="lg:col-span-7 flex flex-col h-[640px] rounded-[6px] bg-[#121212] border border-[#333333] shadow-none overflow-hidden text-[#f2f2f2]">
+          <div className="lg:col-span-7 flex flex-col h-[640px] rounded-[12px] bg-[#121212] border border-[#333333] shadow-none overflow-hidden text-[#f2f2f2]">
             {/* Terminal Header */}
             <div className="p-3.5 bg-[#181818] border-b border-[#333333] flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -1260,9 +1260,9 @@ export default function ScanConsolePage() {
           </div>
 
           {/* RIGHT: DISCOVERY TABS / LIVE FEED (5 Cols) */}
-          <div className="lg:col-span-5 flex flex-col h-[640px] rounded-[6px] bg-card border border-border shadow-none overflow-hidden text-foreground">
+          <div className="lg:col-span-5 flex flex-col h-[640px] rounded-[12px] bg-card border border-border shadow-none overflow-hidden text-foreground">
             {/* Discovery Tabs Navigation */}
-            <div className="p-2.5 bg-secondary border-b border-border flex items-center justify-between">
+            <div className="p-2.5 bg-card border-b border-border flex items-center justify-between">
               <div className="flex items-center space-x-1">
                 <button
                   onClick={() => setActiveTab('urls')}

@@ -49,7 +49,7 @@ export function ThemeToggle() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-36 bg-popover border border-border rounded-[6px] shadow-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute right-0 mt-2 w-36 bg-popover border border-border rounded-[12px] shadow-lg py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
           <button
             type="button"
             onClick={() => {
@@ -132,7 +132,7 @@ export function ThemeSegmentedControl() {
         title="Light Mode"
         className={`p-1 rounded-full transition-all cursor-pointer ${
           theme === 'light'
-            ? 'bg-card text-foreground shadow-none'
+            ? 'bg-card text-foreground shadow-xs'
             : 'text-muted-foreground hover:text-foreground'
         }`}
       >
@@ -145,7 +145,7 @@ export function ThemeSegmentedControl() {
         title="Dark Mode"
         className={`p-1 rounded-full transition-all cursor-pointer ${
           theme === 'dark'
-            ? 'bg-card text-foreground shadow-none'
+            ? 'bg-card text-foreground shadow-xs'
             : 'text-muted-foreground hover:text-foreground'
         }`}
       >
@@ -158,7 +158,7 @@ export function ThemeSegmentedControl() {
         title="System Preference"
         className={`p-1 rounded-full transition-all cursor-pointer ${
           theme === 'system'
-            ? 'bg-card text-foreground shadow-none'
+            ? 'bg-card text-foreground shadow-xs'
             : 'text-muted-foreground hover:text-foreground'
         }`}
       >

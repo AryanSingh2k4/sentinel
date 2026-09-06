@@ -68,13 +68,13 @@ export default function ReportsListPage() {
                 <div className="h-6 w-6 rounded-[6px] bg-primary flex items-center justify-center text-primary-foreground">
                   <Shield className="h-3.5 w-3.5" fill="currentColor" />
                 </div>
-                <span className="tracking-tight text-foreground text-[16px] font-semibold">Sentinel</span>
+                <span className="font-serif tracking-tight text-foreground text-[16px] font-medium">Sentinel</span>
               </Link>
               <div className="hidden md:flex space-x-6 text-[14px] font-medium">
                 <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors py-[15px]">Dashboard</Link>
                 <Link href="/github-scanner" className="text-muted-foreground hover:text-foreground transition-colors py-[15px] flex items-center gap-1.5">
                   <span>GitHub Scanner</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-[4px] bg-secondary text-foreground border border-border">Secrets</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-foreground border border-border">Secrets</span>
                 </Link>
                 <Link href="/reports" className="text-foreground border-b-2 border-primary py-[15px]">Reports</Link>
               </div>
@@ -98,7 +98,7 @@ export default function ReportsListPage() {
       <main className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-[24px] font-semibold tracking-tight text-foreground flex items-center gap-2.5">
+            <h1 className="text-[24px] font-serif font-medium tracking-tight text-foreground flex items-center gap-2.5">
               <FileText className="h-6 w-6 text-primary" />
               Security Assessment Reports
             </h1>
@@ -114,20 +114,20 @@ export default function ReportsListPage() {
             <span>Loading security reports...</span>
           </div>
         ) : error ? (
-          <div className="p-6 bg-card border border-destructive/20 rounded-[6px] text-center shadow-none">
+          <div className="p-6 bg-card border border-destructive/20 rounded-[16px] text-center shadow-xs">
             <AlertTriangle className="h-6 w-6 text-destructive mx-auto mb-2" />
             <p className="text-[14px] text-foreground">{error}</p>
           </div>
         ) : reports.length === 0 ? (
-          <div className="p-12 bg-card border border-border rounded-[6px] text-center shadow-none">
+          <div className="p-12 bg-card border border-border rounded-[16px] text-center shadow-xs">
             <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" />
-            <h3 className="text-[16px] font-semibold text-foreground">No Reports Generated Yet</h3>
+            <h3 className="text-[16px] font-serif font-medium text-foreground">No Reports Generated Yet</h3>
             <p className="text-[14px] text-muted-foreground mt-1 max-w-md mx-auto">
               Run a scan from the dashboard. Once the scan completes, the Report Agent will automatically publish the audit here.
             </p>
             <Link 
               href="/"
-              className="inline-block mt-4 px-4 py-2 bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground text-[13px] font-semibold rounded-[6px] transition-colors shadow-none"
+              className="inline-block mt-4 px-4 py-2 bg-primary hover:opacity-90 text-primary-foreground text-[13px] font-medium rounded-full transition-colors shadow-xs"
             >
               Start New Scan
             </Link>
@@ -148,12 +148,12 @@ export default function ReportsListPage() {
               return (
                 <div 
                   key={r.id}
-                  className="p-6 bg-card border border-border hover:border-primary/40 rounded-[6px] transition-all shadow-none flex flex-col md:flex-row md:items-center justify-between gap-6"
+                  className="p-6 bg-card border border-border hover:border-primary/40 rounded-[16px] transition-all shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="px-2.5 py-0.5 rounded-[4px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-mono uppercase tracking-wider">
-                        AI-assisted Verified Audit
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-mono uppercase tracking-wider">
+                        AI Verified Audit
                       </span>
                       <span className="text-[12px] font-mono text-muted-foreground flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
@@ -161,7 +161,7 @@ export default function ReportsListPage() {
                       </span>
                     </div>
 
-                    <h2 className="text-[18px] font-semibold text-foreground tracking-tight">
+                    <h2 className="text-[18px] font-serif font-medium text-foreground tracking-tight">
                       {domainName}
                     </h2>
                     
@@ -175,7 +175,7 @@ export default function ReportsListPage() {
                       href={`/api/reports/${r.scan_id}?download=json`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3.5 py-1.5 bg-card hover:bg-secondary text-foreground border border-border rounded-[6px] text-[13px] font-normal transition-colors flex items-center gap-1.5 shadow-none"
+                      className="px-3.5 py-1.5 bg-card hover:bg-secondary text-foreground border border-border rounded-full text-[13px] font-medium transition-colors flex items-center gap-1.5 shadow-xs"
                     >
                       <Download className="h-3.5 w-3.5 text-muted-foreground" />
                       <span>JSON</span>
@@ -183,7 +183,7 @@ export default function ReportsListPage() {
                     
                     <Link
                       href={`/reports/${r.scan_id}`}
-                      className="px-4 py-1.5 bg-primary hover:bg-[#0000cd] dark:hover:bg-[#9ec5ff] text-primary-foreground rounded-[6px] text-[13px] font-semibold transition-colors flex items-center gap-1.5 shadow-none"
+                      className="px-4 py-1.5 bg-primary hover:opacity-90 text-primary-foreground rounded-full text-[13px] font-medium transition-colors flex items-center gap-1.5 font-sans shadow-xs"
                     >
                       <span>View Full Report</span>
                       <ExternalLink className="h-3.5 w-3.5" />
