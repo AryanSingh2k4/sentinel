@@ -16,11 +16,19 @@ export class ReconAgent extends BaseAgent {
         crawledUrls.add(result.url);
       });
 
+      // Always ensure the seed target itself is included
+      crawledUrls.add(this.context.target);
+
       const urlList = Array.from(crawledUrls);
       await this.logEvent('KATANA_FINISHED', { count: urlList.length });
 
-      if (urlList.length === 0) {
-        throw new Error('No URLs found during recon phase.');
+      // Record seed / crawled URLs in discovered_urls
+      for (const u of urlList) {
+        await supabaseAdmin.from('discovered_urls').insert({
+          scan_id: this.context.scanId,
+          url: u,
+          discovered_by: 'katana'
+        });
       }
 
       // 2. Filter and fingerprint with httpx

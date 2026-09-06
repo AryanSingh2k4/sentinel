@@ -97,3 +97,75 @@ export async function runTruffleHogGit(
     });
   });
 }
+
+/**
+ * Wrapper for TruffleHog filesystem secret scanner.
+ * Scans local directory (e.g. downloaded frontend assets, JS bundles) for credentials.
+ */
+export async function runTruffleHogFilesystem(
+  directoryPath: string,
+  onResult: (result: TruffleHogResult) => Promise<void> | void
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const trufflehogPath = path.resolve(process.cwd(), 'bin', 'trufflehog.exe');
+
+    const trufflehog = spawn(
+      trufflehogPath,
+      ['filesystem', directoryPath, '--json', '--no-update'],
+      { stdio: ['ignore', 'pipe', 'pipe'] }
+    );
+
+    const rl = readline.createInterface({
+      input: trufflehog.stdout,
+      terminal: false
+    });
+
+    rl.on('line', async (line) => {
+      try {
+        if (!line.trim()) return;
+        const parsed = JSON.parse(line);
+
+        // Filter out informational progress log lines
+        if (parsed.level && !parsed.DetectorName && !parsed.SourceName) {
+          return;
+        }
+
+        const detectorName = parsed.DetectorName || parsed.DecoderName || 'Exposed Secret';
+        const verified = Boolean(parsed.Verified);
+        const redacted = parsed.Redacted || parsed.Raw || '';
+        const fsData = parsed.SourceMetadata?.Data?.Filesystem;
+        const file = fsData?.file || 'Frontend Asset';
+
+        await onResult({
+          detectorName,
+          verified,
+          raw: parsed.Raw,
+          redacted,
+          file,
+          timestamp: new Date().toISOString()
+        });
+      } catch (e) {
+        // Ignore non-JSON line parsing
+      }
+    });
+
+    trufflehog.stderr.on('data', (data) => {
+      const msg = data.toString().trim();
+      if (msg) {
+        console.log(`[TruffleHog-FS]: ${msg}`);
+      }
+    });
+
+    trufflehog.on('close', (code) => {
+      if (code !== 0 && code !== null) {
+        console.warn(`[TruffleHog-FS] Exited with code ${code}`);
+      }
+      resolve();
+    });
+
+    trufflehog.on('error', (err) => {
+      console.error(`[TruffleHog-FS] Execution failed:`, err);
+      reject(err);
+    });
+  });
+}

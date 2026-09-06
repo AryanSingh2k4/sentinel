@@ -65,7 +65,7 @@ const scanWorker = new Worker(
     lockDuration: 300000, // 5 minutes
   }
 );
-console.log('Sentinel AI - Background Worker initialized.');
+console.log('Sentinel - Background Worker initialized.');
 console.log(`Connecting to Redis at ${process.env.REDIS_URL ? 'URL configured' : 'Localhost'}...`);
 
 scanWorker.on('ready', () => {

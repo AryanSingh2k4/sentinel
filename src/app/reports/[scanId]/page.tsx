@@ -343,7 +343,7 @@ export default function ReportPage() {
               <CheckCircle2 className="h-8 w-8 text-[#16a34a] dark:text-[#22c55e] mx-auto mb-2" />
               <h3 className="text-[15px] font-medium text-[#171717] dark:text-[#ededed]">No Critical Flaws Confirmed</h3>
               <p className="text-[13px] text-[#8f8f8f] mt-1">
-                Sentinel AI verified all candidate alerts and filtered out noisy findings.
+                Sentinel verified all candidate alerts and filtered out noisy findings.
               </p>
             </div>
           ) : (
@@ -444,7 +444,7 @@ export default function ReportPage() {
             <span>CONFIDENTIAL SECURITY AUDIT REPORT</span>
           </div>
           <div className="mt-2 sm:mt-0">
-            Powered by Sentinel AI Autonomous Security Engine
+            Powered by Sentinel Autonomous Security Engine
           </div>
         </footer>
 

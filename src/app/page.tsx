@@ -453,7 +453,7 @@ export default function Dashboard() {
               <Shield className="h-4 w-4 text-[#171717] dark:text-[#ededed]" fill="currentColor" />
               AI Verified Findings
             </h3>
-            <span className="text-[12px] text-[#8f8f8f]">Validated by Sentinel AI Triage</span>
+            <span className="text-[12px] text-[#8f8f8f]">Validated by Sentinel Triage</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[14px]">

@@ -45,3 +45,9 @@ next-env.d.ts
 
 # Binaries
 /bin
+
+# Local Redis & Test artifacts
+dump.rdb
+screenshot_*.png
+test_report.*
+

@@ -103,7 +103,7 @@ export default function ReportsListPage() {
               Security Assessment Reports
             </h1>
             <p className="text-[14px] text-[#8f8f8f] mt-1">
-              Automated audit reports synthesized by Sentinel AI with executive risk summaries and vulnerability breakdowns.
+              Automated audit reports synthesized by Sentinel with executive risk summaries and vulnerability breakdowns.
             </p>
           </div>
         </div>

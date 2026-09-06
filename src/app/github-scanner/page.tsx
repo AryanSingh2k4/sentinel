@@ -522,7 +522,7 @@ export default function GitHubScannerPage() {
             </div>
             <p className="text-[12px] text-[#8f8f8f] flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-[#16a34a] dark:bg-[#22c55e]" />
-              Dismissed by Sentinel AI triage
+              Dismissed by Sentinel triage
             </p>
           </div>
 
@@ -1061,7 +1061,7 @@ export default function GitHubScannerPage() {
                   </div>
                   <p className="text-[13px] text-[#4d4d4d] dark:text-[#a1a1a1] mt-1 leading-relaxed">
                     {selectedSecret.isFalsePositive
-                      ? 'Sentinel AI triaged this finding as non-exploitable or test data.'
+                      ? 'Sentinel triaged this finding as non-exploitable or test data.'
                       : selectedSecret.verifiedLive
                       ? 'TruffleHog active verification sent an authenticated probe to the provider API and confirmed this secret is currently ACTIVE.'
                       : 'Detected via cryptographic entropy and pattern signature. Recommended to audit immediately.'}

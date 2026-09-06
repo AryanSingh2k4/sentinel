@@ -23,8 +23,8 @@ export class ValidationAgent extends BaseAgent {
 
       if (!findings || findings.length === 0) {
         await this.logEvent('VALIDATION_SKIPPED', { message: 'No candidate findings to validate' });
-        await supabaseAdmin.from('scans').update({ status: 'COMPLETED' }).eq('id', this.context.scanId);
-        return { success: true };
+        await supabaseAdmin.from('scans').update({ status: 'REPORTING' }).eq('id', this.context.scanId);
+        return { success: true, nextStep: 'REPORT' };
       }
 
       await this.logEvent('LLM_TRIAGE_STARTED', { findingsCount: findings.length });
@@ -36,15 +36,16 @@ export class ValidationAgent extends BaseAgent {
       for (const finding of findings) {
         const prompt = `
 You are an expert cybersecurity triage agent.
-Your job is to read a raw vulnerability finding from an automated scanner (Nuclei) and determine if it is a REAL vulnerability or a FALSE POSITIVE.
+Your job is to read a raw security finding from an automated scanner (Nuclei or Secret Scanner) and determine if it is a REAL vulnerability or a FALSE POSITIVE.
 
 Finding Title: ${finding.title}
 Severity: ${finding.severity}
 Raw Output / Reasoning:
 ${finding.reasoning}
 
-Analyze the URL, the vulnerability type, and the extracted data. 
-For example, if the finding is "Default Login" but the URL is a public social media page like Instagram or Twitter, it is a FALSE POSITIVE.
+Analyze the URL, the finding type, and the extracted data. 
+- If the finding is "Default Login" on a public third-party social media page, it is a FALSE POSITIVE.
+- If the finding is an exposed secret, database credential, or private API key exposed in client-side frontend code or assets, it is a REAL security finding (is_false_positive: false) unless it is explicitly an inert non-secret placeholder.
 
 Respond with ONLY a JSON object in this exact format:
 {

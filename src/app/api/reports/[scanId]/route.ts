@@ -113,7 +113,7 @@ export async function GET(
       },
       summary: {
         title: report?.title || `Security Assessment Report - ${targetDomain}`,
-        executiveSummary: report?.summary || 'Assessment completed. Results triaged by Sentinel AI.',
+        executiveSummary: report?.summary || 'Assessment completed. Results triaged by Sentinel.',
         urlsMapped: urlCount || 0,
         technologiesFound: technologies?.length || 0,
         candidateFindingsCount: candidateFindings?.length || 0,

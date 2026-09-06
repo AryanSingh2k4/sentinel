@@ -193,6 +193,9 @@ export default function ScanConsolePage() {
       }
       const json = await res.json();
       setData(json);
+      if (isInitial && json.scan?.target_type === 'git') {
+        setActiveTab('findings');
+      }
       setError(null);
     } catch (err: any) {
       console.error('Error fetching scan details:', err);
