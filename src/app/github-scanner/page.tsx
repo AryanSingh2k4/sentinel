@@ -38,6 +38,8 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Navbar } from '@/components/Navbar';
+import { CustomDropdown } from '@/components/CustomDropdown';
 
 interface SecretItem {
   id: string;
@@ -263,106 +265,10 @@ export default function GitHubScannerPage() {
   return (
     <div className="min-h-screen bg-background font-sans text-foreground transition-colors duration-150">
       {/* Top Header Navigation */}
-      <nav className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="flex h-14 items-center justify-between">
-            
-            {/* Left Brand & Links */}
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-[6px] bg-primary flex items-center justify-center text-primary-foreground">
-                  <Shield className="h-3.5 w-3.5" fill="currentColor" />
-                </div>
-                <span className="font-medium tracking-tight text-foreground text-[15px]">Sentinel</span>
-              </Link>
-
-              <div className="hidden md:flex space-x-6 text-[14px] font-medium">
-                <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors py-[15px]">
-                  Dashboard
-                </Link>
-                <Link 
-                  href="/github-scanner" 
-                  className="text-foreground border-b-2 border-primary py-[15px] flex items-center gap-1.5"
-                >
-                  <span>GitHub Scanner</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-foreground border border-border">
-                    Secrets
-                  </span>
-                </Link>
-                <Link href="/reports" className="text-muted-foreground hover:text-foreground transition-colors py-[15px]">
-                  Reports
-                </Link>
-              </div>
-            </div>
-
-            {/* Right Header Actions */}
-            <div className="flex items-center space-x-3">
-              <ThemeToggle />
-
-              <button
-                onClick={() => fetchData(true)}
-                disabled={refreshing}
-                title="Refresh secret scanner telemetry"
-                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full border border-transparent hover:border-border transition-all cursor-pointer"
-              >
-                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-foreground' : ''}`} />
-              </button>
-
-              <div className="h-4 w-px bg-border hidden sm:block" />
-
-              {/* User Dropdown */}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-secondary border border-transparent hover:border-border transition-colors focus:outline-none cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-full bg-secondary flex items-center justify-center border border-border">
-                    <User className="h-3.5 w-3.5 text-foreground" />
-                  </div>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                </button>
-
-                {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-popover border border-border rounded-[6px] shadow-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    <div className="px-4 py-3 border-b border-border">
-                      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Signed in as</p>
-                      <p className="text-[13px] text-foreground font-medium truncate mt-0.5">{userEmail}</p>
-                    </div>
-                    <div className="py-1">
-                      <Link 
-                        href="/" 
-                        className="w-full text-left px-4 py-2 text-[13px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors flex items-center gap-2"
-                      >
-                        <Shield className="h-3.5 w-3.5 text-foreground" />
-                        <span>Security Overview</span>
-                      </Link>
-                      <Link 
-                        href="/reports" 
-                        className="w-full text-left px-4 py-2 text-[13px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors flex items-center gap-2"
-                      >
-                        <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>Assessment Reports</span>
-                      </Link>
-                    </div>
-                    <div className="border-t border-border py-1">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-[13px] text-destructive hover:bg-destructive/10 transition-colors flex items-center gap-2 cursor-pointer"
-                      >
-                        <LogOut className="h-3.5 w-3.5" />
-                        <span>Log out</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Container */}
-      <main className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* Scanner Hero / Input Card */}
         <div className="bg-card border border-border rounded-[12px] p-6 md:p-8 shadow-none relative overflow-hidden">
@@ -629,17 +535,17 @@ export default function GitHubScannerPage() {
                   )}
                 </div>
 
-                {/* Verification Status Filter */}
-                <select
+                {/* Custom Verification Status Filter */}
+                <CustomDropdown<'all' | 'verified' | 'pattern' | 'fp'>
                   value={statusFilter}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStatusFilter(e.target.value as any)}
-                  className="h-[34px] px-3 bg-background border border-border rounded-full text-[13px] text-foreground focus:border-primary outline-none cursor-pointer"
-                >
-                  <option value="all">All Verification Statuses</option>
-                  <option value="verified">Live Active Keys Only</option>
-                  <option value="pattern">Pattern Matches Only</option>
-                  <option value="fp">False Positives Filtered</option>
-                </select>
+                  onChange={(val) => setStatusFilter(val)}
+                  options={[
+                    { value: 'all', label: 'All Verification Statuses' },
+                    { value: 'verified', label: 'Live Active Keys Only', dotColor: 'bg-destructive' },
+                    { value: 'pattern', label: 'Pattern Matches Only', dotColor: 'bg-[#d97706] dark:bg-[#f59e0b]' },
+                    { value: 'fp', label: 'False Positives Filtered', dotColor: 'bg-muted-foreground' },
+                  ]}
+                />
               </div>
             )}
           </div>

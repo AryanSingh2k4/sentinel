@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Navbar } from '@/components/Navbar';
 
 // Types
 interface ScanMeta {
@@ -746,103 +747,11 @@ export default function ScanConsolePage() {
   return (
     <div className="min-h-screen bg-background font-sans text-foreground pb-28 transition-colors duration-150">
       {/* 1. TOP NAVIGATION */}
-      <nav className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="flex h-14 items-center justify-between">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-[6px] bg-primary flex items-center justify-center text-primary-foreground">
-                  <Shield className="h-3.5 w-3.5" fill="currentColor" />
-                </div>
-                <span className="font-sans font-semibold tracking-tight text-foreground text-[16px] font-medium">Sentinel</span>
-                <span className="text-[10px] font-mono uppercase bg-secondary text-foreground px-1.5 py-0.5 rounded-full border border-border">
-                  Console
-                </span>
-              </Link>
-
-              <div className="hidden md:flex space-x-6 text-[14px] font-medium">
-                <Link
-                  href="/"
-                  className="text-muted-foreground hover:text-foreground transition-colors py-[15px]"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/github-scanner"
-                  className="text-muted-foreground hover:text-foreground transition-colors py-[15px]"
-                >
-                  GitHub Scanner
-                </Link>
-                <Link
-                  href="/reports"
-                  className="text-muted-foreground hover:text-foreground transition-colors py-[15px]"
-                >
-                  Reports
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <ThemeToggle />
-
-              <div className="flex items-center gap-2 text-[11px] font-mono text-muted-foreground bg-secondary px-2.5 py-1 rounded-full border border-border">
-                <Radio className={`h-3 w-3 ${isRunning ? 'text-emerald-600 dark:text-emerald-400 animate-pulse' : 'text-muted-foreground'}`} />
-                <span>{isRunning ? 'STREAM ACTIVE' : 'STREAM CLOSED'}</span>
-              </div>
-
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-secondary border border-transparent hover:border-border transition-colors focus:outline-none cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-full bg-secondary flex items-center justify-center border border-border">
-                    <User className="h-3.5 w-3.5 text-foreground" />
-                  </div>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                </button>
-
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-popover border border-border rounded-[6px] shadow-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    <div className="px-4 py-3 border-b border-border">
-                      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Signed in as</p>
-                      <p className="text-[13px] text-foreground font-medium truncate mt-0.5">{userEmail}</p>
-                    </div>
-                    <div className="py-1">
-                      <Link
-                        href="/"
-                        className="w-full text-left px-4 py-2 text-[13px] text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors flex items-center gap-2"
-                      >
-                        <Shield className="h-3.5 w-3.5 text-foreground" />
-                        Dashboard
-                      </Link>
-                      <Link
-                        href="/reports"
-                        className="w-full text-left px-4 py-2 text-[13px] text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors flex items-center gap-2"
-                      >
-                        <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                        All Reports
-                      </Link>
-                    </div>
-                    <div className="border-t border-border py-1">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-[13px] text-destructive hover:bg-destructive/10 transition-colors flex items-center gap-2 cursor-pointer"
-                      >
-                        <LogOut className="h-3.5 w-3.5" />
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* 2. HEADER & BREADCRUMB */}
       <div className="border-b border-border bg-card/50">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-5">
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-5">
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 text-[12px] font-mono text-muted-foreground mb-3">
             <Link href="/" className="hover:text-foreground transition-colors">
@@ -967,7 +876,7 @@ export default function ScanConsolePage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
         {/* 3. VISUAL PIPELINE STEPPER */}
         <div className="p-5 rounded-[12px] bg-card border border-border shadow-none">
           <div className="flex items-center justify-between mb-4">

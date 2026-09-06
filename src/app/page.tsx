@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Navbar } from '@/components/Navbar';
 
 interface ScanTarget {
   domain?: string;
@@ -154,63 +155,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background font-sans text-foreground transition-colors duration-150">
       {/* Top Navigation */}
-      <nav className="border-b border-border bg-background sticky top-0 z-40">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="flex h-14 items-center justify-between">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-[6px] bg-primary flex items-center justify-center text-primary-foreground">
-                  <Shield className="h-3.5 w-3.5" fill="currentColor" />
-                </div>
-                <span className="font-medium tracking-tight text-foreground text-[15px]">Sentinel</span>
-              </Link>
-              <div className="hidden md:flex space-x-6 text-[14px] font-medium">
-                <Link href="/" className="text-foreground border-b-2 border-primary py-[15px]">Dashboard</Link>
-                <Link href="/github-scanner" className="text-muted-foreground hover:text-foreground transition-colors py-[15px] flex items-center gap-1.5">
-                  <span>GitHub Scanner</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-foreground border border-border">Secrets</span>
-                </Link>
-                <Link href="/reports" className="text-muted-foreground hover:text-foreground transition-colors py-[15px]">Reports</Link>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              {/* Vercel Theme Switcher */}
-              <ThemeToggle />
-
-              <div className="relative" ref={dropdownRef}>
-                <button 
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-[#fafafa] dark:hover:bg-[#111111] border border-transparent hover:border-[#ebebeb] dark:hover:border-[#222222] transition-colors focus:outline-none cursor-pointer"
-                >
-                  <div className="h-7 w-7 rounded-full bg-secondary flex items-center justify-center border border-border">
-                    <User className="h-3.5 w-3.5 text-foreground" />
-                  </div>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                </button>
-
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-[12px] shadow-none py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    <div className="px-4 py-3 border-b border-border">
-                      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Signed in as</p>
-                      <p className="text-[13px] text-foreground font-medium truncate mt-0.5">{userEmail}</p>
-                    </div>
-                    <div className="border-t border-border py-1">
-                      <button 
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-[13px] text-destructive hover:bg-destructive/10 transition-colors flex items-center cursor-pointer"
-                      >
-                        <LogOut className="h-3.5 w-3.5 mr-2" />
-                        Log out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content */}
       <main className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -279,7 +224,7 @@ export default function Dashboard() {
           {/* Active Scans Table */}
           <div className="bg-card border border-border rounded-[12px] overflow-hidden shadow-none">
             <div className="px-6 py-4 border-b border-border bg-card">
-              <h3 className="text-[15px] font-serif font-medium text-foreground">Active Scans</h3>
+              <h3 className="text-[18px] font-serif font-bold tracking-tight text-foreground">Active Scans</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[14px]">
@@ -349,7 +294,7 @@ export default function Dashboard() {
           {/* Discovered Technologies */}
           <div className="bg-card border border-border rounded-[12px] overflow-hidden shadow-none">
             <div className="px-6 py-4 border-b border-border bg-card">
-              <h3 className="text-[15px] font-serif font-medium text-foreground">Discovered Technologies</h3>
+              <h3 className="text-[18px] font-serif font-bold tracking-tight text-foreground">Discovered Technologies</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[14px]">
@@ -401,7 +346,7 @@ export default function Dashboard() {
         {/* Candidate Findings Table */}
         <div className="bg-card border border-border rounded-[12px] overflow-hidden shadow-none mt-8">
           <div className="px-6 py-4 border-b border-border bg-card">
-            <h3 className="text-[15px] font-serif font-medium text-foreground">Candidate Findings (Nuclei Engine)</h3>
+            <h3 className="text-[18px] font-serif font-bold tracking-tight text-foreground">Candidate Findings (Nuclei Engine)</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[14px]">
@@ -449,7 +394,7 @@ export default function Dashboard() {
         {/* AI Confirmed Findings Table */}
         <div className="bg-card border border-border rounded-[12px] overflow-hidden shadow-none mt-8">
           <div className="px-6 py-4 border-b border-border bg-card flex items-center justify-between">
-            <h3 className="text-[15px] font-serif font-medium text-foreground flex items-center gap-2">
+            <h3 className="text-[18px] font-serif font-bold tracking-tight text-foreground flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary" fill="currentColor" />
               AI-assisted Verified Findings
             </h3>

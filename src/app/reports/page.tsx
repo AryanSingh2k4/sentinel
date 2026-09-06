@@ -15,6 +15,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Navbar } from '@/components/Navbar';
 
 interface ReportListItem {
   id: string;
@@ -60,42 +61,10 @@ export default function ReportsListPage() {
   return (
     <div className="min-h-screen bg-background font-sans text-foreground pb-20 transition-colors duration-150">
       {/* Top Navigation */}
-      <nav className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="flex h-14 items-center justify-between">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2.5">
-                <div className="h-6 w-6 rounded-[6px] bg-primary flex items-center justify-center text-primary-foreground">
-                  <Shield className="h-3.5 w-3.5" fill="currentColor" />
-                </div>
-                <span className="font-serif tracking-tight text-foreground text-[16px] font-medium">Sentinel</span>
-              </Link>
-              <div className="hidden md:flex space-x-6 text-[14px] font-medium">
-                <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors py-[15px]">Dashboard</Link>
-                <Link href="/github-scanner" className="text-muted-foreground hover:text-foreground transition-colors py-[15px] flex items-center gap-1.5">
-                  <span>GitHub Scanner</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-foreground border border-border">Secrets</span>
-                </Link>
-                <Link href="/reports" className="text-foreground border-b-2 border-primary py-[15px]">Reports</Link>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <ThemeToggle />
-              <Link 
-                href="/"
-                className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Dashboard</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content */}
-      <main className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 pt-10">
+      <main className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 pt-8 pb-12">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-[24px] font-serif font-medium tracking-tight text-foreground flex items-center gap-2.5">

@@ -20,6 +20,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Navbar } from '@/components/Navbar';
 
 interface ReportData {
   meta: {
@@ -147,23 +148,25 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans pb-20 transition-colors duration-150">
+      {/* Unified Top Navigation */}
+      <Navbar />
+
       {/* Top Action Bar (Hidden on print) */}
-      <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50 print:hidden">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+      <div className="border-b border-border bg-card/60 backdrop-blur-md sticky top-14 z-30 print:hidden">
+        <div className="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="/reports" className="flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
-              <span>Dashboard</span>
+              <span>All Reports</span>
             </Link>
             <div className="h-4 w-px bg-border" />
             <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" strokeWidth={2} fill="currentColor" />
-              <span className="text-[13px] font-semibold text-foreground">Sentinel Audit Export</span>
+              <Shield className="h-3.5 w-3.5 text-primary" strokeWidth={2} fill="currentColor" />
+              <span className="text-[13px] font-medium text-foreground">Sentinel Audit Export</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <button
               onClick={handleDownloadJSON}
               className="flex items-center gap-2 px-3.5 py-1.5 bg-card hover:bg-secondary text-foreground border border-border rounded-[6px] text-[13px] font-medium transition-colors cursor-pointer shadow-none"
@@ -180,7 +183,7 @@ export default function ReportPage() {
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Report Document Container */}
       <main className="max-w-6xl mx-auto px-6 pt-10">
@@ -245,7 +248,7 @@ export default function ReportPage() {
         <section className="mb-8 p-6 bg-card border border-border rounded-[12px] shadow-none">
           <div className="flex items-center gap-2 mb-3">
             <FileText className="h-4 w-4 text-primary" />
-            <h2 className="text-[15px] font-serif font-medium text-foreground">
+            <h2 className="text-[18px] font-serif font-bold tracking-tight text-foreground">
               Executive Risk Summary
             </h2>
           </div>
@@ -303,7 +306,7 @@ export default function ReportPage() {
         <section className="mb-8 p-6 bg-card border border-border rounded-[12px] shadow-none">
           <div className="flex items-center gap-2 mb-3">
             <Layers className="h-4 w-4 text-primary" />
-            <h2 className="text-[15px] font-serif font-medium text-foreground">
+            <h2 className="text-[18px] font-serif font-bold tracking-tight text-foreground">
               Fingerprinted Attack Surface & Tech Stack
             </h2>
           </div>
@@ -329,7 +332,7 @@ export default function ReportPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-destructive" fill="currentColor" />
-              <h2 className="text-[18px] font-serif font-medium text-foreground tracking-tight">
+              <h2 className="text-[18px] font-serif font-bold text-foreground tracking-tight">
                 Confirmed High-Risk Vulnerabilities
               </h2>
             </div>
@@ -391,7 +394,7 @@ export default function ReportPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <h2 className="text-[16px] font-semibold text-foreground tracking-tight">
+              <h2 className="text-[18px] font-serif font-bold text-foreground tracking-tight">
                 Triaged False Positives (Filtered Out by AI-assisted Triage)
               </h2>
             </div>
