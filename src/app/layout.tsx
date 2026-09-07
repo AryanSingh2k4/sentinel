@@ -43,7 +43,7 @@ export default function RootLayout({
     <html 
       lang="en" 
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${sentinelSerif.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${sentinelSerif.variable} h-full antialiased selection:bg-primary selection:text-primary-foreground`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-150">
         <ThemeProvider

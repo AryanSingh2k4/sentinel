@@ -161,4 +161,16 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--foreground) 20%, transparent) transparent;
-}
+}
+
+/* Custom Text Selection Highlight */
+::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+::-moz-selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
