@@ -1,3 +1,16 @@
+import fs from 'fs';
+import path from 'path';
+
+// Automatically load .env.local if not already loaded into process.env
+if (typeof (process as any).loadEnvFile === 'function') {
+  const envLocal = path.resolve(process.cwd(), '.env.local');
+  if (fs.existsSync(envLocal)) {
+    try {
+      (process as any).loadEnvFile(envLocal);
+    } catch {}
+  }
+}
+
 import { Worker, Job } from 'bullmq';
 import { redis } from './src/lib/queue/redis';
 import { SCAN_QUEUE_NAME, scanQueue } from './src/lib/queue/bull';
@@ -6,6 +19,7 @@ import { AttackAgent } from './src/lib/agents/attack';
 import { ValidationAgent } from './src/lib/agents/validation';
 import { ReportAgent } from './src/lib/agents/reporting';
 import { SecretAgent } from './src/lib/agents/secret';
+import { PatchAgent } from './src/lib/agents/patch';
 
 // The worker processes jobs from the queue and drives the State Machine
 const scanWorker = new Worker(
@@ -39,6 +53,13 @@ const scanWorker = new Worker(
         }
       } else if (step === 'VALIDATE') {
         const agent = new ValidationAgent({ scanId, target });
+        const result = await agent.execute();
+
+        if (result.success && result.nextStep) {
+           await scanQueue.add(result.nextStep, { scanId, target, step: result.nextStep });
+        }
+      } else if (step === 'PATCH' || step === 'patch') {
+        const agent = new PatchAgent({ scanId, target });
         const result = await agent.execute();
 
         if (result.success && result.nextStep) {

@@ -17,10 +17,18 @@ import {
   Activity,
   FileText,
   Lock,
-  ExternalLink
+  ExternalLink,
+  Terminal,
+  Code2,
+  GitPullRequest,
+  Copy,
+  Check,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Navbar } from '@/components/Navbar';
+import { MonacoDiffViewer, PatchItem } from '@/components/MonacoDiffViewer';
 
 interface ReportData {
   meta: {
@@ -73,6 +81,7 @@ interface ReportData {
       confidence: number;
     };
   }>;
+  patches?: PatchItem[];
 }
 
 export default function ReportPage() {
@@ -82,6 +91,58 @@ export default function ReportPage() {
   const [report, setReport] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copiedCurls, setCopiedCurls] = useState<Record<string, boolean>>({});
+  const [expandedHttp, setExpandedHttp] = useState<Record<string, boolean>>({});
+
+  const handleCopyCurl = (findingId: string, curlCmd: string) => {
+    navigator.clipboard.writeText(curlCmd);
+    setCopiedCurls(prev => ({ ...prev, [findingId]: true }));
+    setTimeout(() => {
+      setCopiedCurls(prev => ({ ...prev, [findingId]: false }));
+    }, 2000);
+  };
+
+  const toggleHttpExpand = (findingId: string) => {
+    setExpandedHttp(prev => ({ ...prev, [findingId]: !prev[findingId] }));
+  };
+
+  const parseFindingEvidence = (raw: string) => {
+    let curlCommand: string | null = null;
+    let httpRequest: string | null = null;
+    let httpResponse: string | null = null;
+    let cleanReasoning = raw;
+
+    // Extract cURL PoC
+    const curlMatch = raw.match(/cURL PoC:\r?\n([\s\S]*?)(?=(?:\r?\n\r?\n(?:HTTP Request|HTTP Response|Template|Matched at)|$))/i);
+    if (curlMatch && curlMatch[1]) {
+      curlCommand = curlMatch[1].trim();
+    }
+
+    // Extract HTTP Request
+    const reqMatch = raw.match(/HTTP Request:\r?\n([\s\S]*?)(?=(?:\r?\n\r?\n(?:HTTP Response|cURL PoC|Template|Matched at)|$))/i);
+    if (reqMatch && reqMatch[1]) {
+      httpRequest = reqMatch[1].trim();
+    }
+
+    // Extract HTTP Response
+    const resMatch = raw.match(/HTTP Response:\r?\n([\s\S]*?)(?=(?:\r?\n\r?\n(?:HTTP Request|cURL PoC|Template|Matched at)|$))/i);
+    if (resMatch && resMatch[1]) {
+      httpResponse = resMatch[1].trim();
+    }
+
+    // Clean reasoning for general evidence display
+    cleanReasoning = cleanReasoning
+      .replace(/cURL PoC:\r?\n[\s\S]*?(?=(?:\r?\n\r?\n(?:HTTP Request|HTTP Response)|$))/gi, '')
+      .replace(/HTTP Request:\r?\n[\s\S]*?(?=(?:\r?\n\r?\n(?:HTTP Response|cURL PoC)|$))/gi, '')
+      .replace(/HTTP Response:\r?\n[\s\S]*?(?=(?:\r?\n\r?\n(?:HTTP Request|cURL PoC)|$))/gi, '')
+      .trim();
+
+    if (!cleanReasoning) {
+      cleanReasoning = raw;
+    }
+
+    return { curlCommand, httpRequest, httpResponse, cleanReasoning };
+  };
 
   useEffect(() => {
     if (!scanId) return;
@@ -224,7 +285,7 @@ export default function ReportPage() {
           </div>
 
           {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+          <div className={`grid grid-cols-2 sm:grid-cols-4 ${report.patches && report.patches.length > 0 ? 'lg:grid-cols-5' : ''} gap-4 pt-6`}>
             <div className="p-4 bg-[#faf9f6]/70 dark:bg-[#1f1e1c]/70 border border-border rounded-[12px]">
               <div className="text-[12px] font-mono text-muted-foreground">URLs Crawled</div>
               <div className="text-[26px] font-serif font-normal text-foreground mt-1">{summary.urlsMapped}</div>
@@ -241,6 +302,12 @@ export default function ReportPage() {
               <div className="text-[12px] font-mono text-emerald-600 dark:text-emerald-400">AI Noise Reduction</div>
               <div className="text-[26px] font-serif font-normal text-emerald-600 dark:text-emerald-400 mt-1">{fpReductionRate}%</div>
             </div>
+            {report.patches && report.patches.length > 0 && (
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-[12px]">
+                <div className="text-[12px] font-mono text-primary">Patches & PRs</div>
+                <div className="text-[26px] font-serif font-normal text-primary mt-1">{report.patches.length}</div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -351,43 +418,164 @@ export default function ReportPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {verifiedFindings.map(finding => (
-                <div 
-                  key={finding.id}
-                  className="p-6 bg-card border border-border hover:border-destructive/40 rounded-[6px] shadow-none relative overflow-hidden transition-all"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-border">
-                    <div className="flex items-center gap-3">
-                      <span className={`px-2.5 py-0.5 rounded-[4px] text-[11px] font-mono uppercase font-medium border ${
-                        finding.severity === 'critical' ? 'bg-destructive/10 border-destructive/20 text-destructive' :
-                        finding.severity === 'high' ? 'bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400' :
-                        finding.severity === 'medium' ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400' :
-                        'bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400'
-                      }`}>
-                        {finding.severity}
-                      </span>
-                      <h3 className="text-[16px] font-medium text-foreground">
-                        {finding.candidate_findings?.title || 'Vulnerability Finding'}
-                      </h3>
-                    </div>
-                    <span className="text-[12px] font-mono text-muted-foreground">
-                      ID: {finding.id.slice(0, 8)}
-                    </span>
-                  </div>
+              {verifiedFindings.map(finding => {
+                const evidence = parseFindingEvidence(finding.candidate_findings?.reasoning || '');
+                const relatedPatch = report.patches?.find(p => p.findingId === finding.id);
 
-                  <div className="mt-4">
-                    <h4 className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
-                      Technical Evidence & Extraction
-                    </h4>
-                    <pre className="p-4 bg-secondary/60 border border-border rounded-[8px] text-[12px] font-mono text-foreground overflow-x-auto whitespace-pre-wrap leading-relaxed">
-                      {finding.candidate_findings?.reasoning || 'No raw evidence payload available.'}
-                    </pre>
+                return (
+                  <div 
+                    key={finding.id}
+                    className="p-6 bg-card border border-border hover:border-destructive/40 rounded-[10px] shadow-none relative overflow-hidden transition-all"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-border">
+                      <div className="flex items-center gap-3">
+                        <span className={`px-2.5 py-0.5 rounded-[4px] text-[11px] font-mono uppercase font-medium border ${
+                          finding.severity === 'critical' ? 'bg-destructive/10 border-destructive/20 text-destructive' :
+                          finding.severity === 'high' ? 'bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400' :
+                          finding.severity === 'medium' ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400' :
+                          'bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400'
+                        }`}>
+                          {finding.severity}
+                        </span>
+                        <h3 className="text-[16px] font-medium text-foreground">
+                          {finding.candidate_findings?.title || 'Vulnerability Finding'}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {relatedPatch && (
+                          <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center gap-1">
+                            <GitPullRequest className="h-3 w-3" /> Auto-Patch Ready
+                          </span>
+                        )}
+                        <span className="text-[12px] font-mono text-muted-foreground">
+                          ID: {finding.id.slice(0, 8)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Technical Evidence */}
+                    <div className="mt-4">
+                      <h4 className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
+                        Technical Evidence & Extraction
+                      </h4>
+                      <pre className="p-4 bg-secondary/60 border border-border rounded-[8px] text-[12px] font-mono text-foreground overflow-x-auto whitespace-pre-wrap leading-relaxed">
+                        {evidence.cleanReasoning || 'No raw evidence payload available.'}
+                      </pre>
+                    </div>
+
+                    {/* Deterministic cURL PoC Replay */}
+                    {evidence.curlCommand && (
+                      <div className="mt-4 border border-border rounded-[8px] bg-secondary/30 overflow-hidden">
+                        <div className="px-4 py-2 bg-secondary/70 border-b border-border flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Terminal className="h-3.5 w-3.5 text-primary" />
+                            <span className="text-[11px] font-mono font-medium text-foreground uppercase tracking-wider">
+                              Reproducible cURL PoC (Deterministic Replay)
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => handleCopyCurl(finding.id, evidence.curlCommand!)}
+                            className="px-2.5 py-1 text-[11px] font-mono bg-card hover:bg-secondary border border-border text-foreground rounded-[4px] transition-colors flex items-center gap-1.5 cursor-pointer shadow-none"
+                          >
+                            {copiedCurls[finding.id] ? (
+                              <>
+                                <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                                <span className="text-emerald-600 dark:text-emerald-400">Copied cURL</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-3 w-3" />
+                                <span>Copy cURL PoC</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <pre className="p-3.5 bg-black/40 text-[12px] font-mono text-emerald-400 overflow-x-auto whitespace-pre-wrap leading-relaxed select-all">
+                          {evidence.curlCommand}
+                        </pre>
+                      </div>
+                    )}
+
+                    {/* Raw HTTP Interaction Stream (-irr) */}
+                    {(evidence.httpRequest || evidence.httpResponse) && (
+                      <div className="mt-3 border border-border rounded-[8px] overflow-hidden">
+                        <button
+                          onClick={() => toggleHttpExpand(finding.id)}
+                          className="w-full px-4 py-2 bg-secondary/40 hover:bg-secondary/70 transition-colors flex items-center justify-between text-left cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Code2 className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="text-[11px] font-mono font-medium text-muted-foreground uppercase tracking-wider">
+                              Raw HTTP Interaction Stream (-irr Evidence)
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 text-[12px] text-muted-foreground font-mono">
+                            <span>{expandedHttp[finding.id] ? 'Hide' : 'Inspect'} Stream</span>
+                            {expandedHttp[finding.id] ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                          </div>
+                        </button>
+
+                        {expandedHttp[finding.id] && (
+                          <div className="p-4 bg-secondary/20 border-t border-border space-y-3">
+                            {evidence.httpRequest && (
+                              <div>
+                                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+                                  Raw HTTP Request Sent
+                                </div>
+                                <pre className="p-3 bg-black/40 border border-border rounded-[6px] text-[11px] font-mono text-foreground overflow-x-auto whitespace-pre-wrap">
+                                  {evidence.httpRequest}
+                                </pre>
+                              </div>
+                            )}
+                            {evidence.httpResponse && (
+                              <div>
+                                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+                                  Raw HTTP Response Received
+                                </div>
+                                <pre className="p-3 bg-black/40 border border-border rounded-[6px] text-[11px] font-mono text-muted-foreground overflow-x-auto whitespace-pre-wrap max-h-[260px]">
+                                  {evidence.httpResponse}
+                                </pre>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
+
+        {/* Autonomous Code Fixes & GitHub Pull Requests */}
+        {report.patches && report.patches.length > 0 && (
+          <section className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <GitPullRequest className="h-4 w-4 text-primary" />
+                <h2 className="text-[18px] font-serif font-bold text-foreground tracking-tight">
+                  Autonomous Code Fixes & Verified Patches ({report.patches.length})
+                </h2>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Self-Healing Sandbox Verified
+                </span>
+                <span className="text-[11px] font-mono text-muted-foreground">
+                  AST Mapped & Synced
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {report.patches.map((patch, idx) => (
+                <MonacoDiffViewer key={patch.findingId || idx} patch={patch} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* False Positive AI Filtering Section */}
         <section className="mb-8">

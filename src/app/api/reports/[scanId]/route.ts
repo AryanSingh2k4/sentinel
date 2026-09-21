@@ -100,6 +100,17 @@ export async function GET(
       low: verifiedVulnerabilities.filter(f => f.severity === 'low').length,
     };
 
+    // 7. Fetch generated patches from events
+    const { data: patchEvents } = await supabaseAdmin
+      .from('events')
+      .select('payload')
+      .eq('scan_id', scanId)
+      .eq('event_type', 'PATCHES_STORED')
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    const patches = patchEvents && patchEvents.length > 0 ? (patchEvents[0].payload as any)?.patches || [] : [];
+
     const reportPayload = {
       meta: {
         reportId: report?.id || null,
@@ -125,6 +136,7 @@ export async function GET(
       verifiedFindings: verifiedVulnerabilities,
       falsePositives: falsePositives,
       candidateFindings: candidateFindings || [],
+      patches: patches,
     };
 
     const url = new URL(request.url);

@@ -39,6 +39,7 @@ import {
   Eye,
   Radio,
   SlidersHorizontal,
+  GitPullRequest,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -56,6 +57,8 @@ interface ScanMeta {
     | 'SECRETS'
     | 'ATTACK'
     | 'VALIDATION'
+    | 'PATCHING'
+    | 'PATCH'
     | 'REPORTING'
     | 'COMPLETED'
     | 'FAILED'
@@ -453,6 +456,13 @@ export default function ScanConsolePage() {
           icon: Cpu,
         },
         {
+          key: 'PATCH',
+          label: 'Auto-Patcher',
+          shortLabel: 'PATCH',
+          description: 'AST patch synthesis & sandbox verification',
+          icon: GitPullRequest,
+        },
+        {
           key: 'REPORT',
           label: 'Executive Synthesis',
           shortLabel: 'REPORT',
@@ -461,11 +471,12 @@ export default function ScanConsolePage() {
         },
       ];
 
-      const stageOrder = ['QUEUED', 'SECRETS', 'VALIDATION', 'REPORTING', 'COMPLETED'];
-      const currentIndex = stageOrder.indexOf(status);
+      const stageOrder = ['QUEUED', 'SECRETS', 'VALIDATION', 'PATCHING', 'REPORTING', 'COMPLETED'];
+      const normalizedStatus = status === 'PATCH' ? 'PATCHING' : status === 'REPORT' ? 'REPORTING' : status;
+      const currentIndex = stageOrder.indexOf(normalizedStatus);
 
       return steps.map((s, idx) => {
-        const stepStatusIdx = idx + 1; // 1: SECRETS, 2: VALIDATION, 3: REPORTING
+        const stepStatusIdx = idx + 1; // 1: SECRETS, 2: VALIDATION, 3: PATCHING, 4: REPORTING
         let state: 'completed' | 'active' | 'pending' | 'failed' = 'pending';
 
         if (status === 'FAILED' || status === 'CANCELLED') {
@@ -508,6 +519,13 @@ export default function ScanConsolePage() {
           icon: Cpu,
         },
         {
+          key: 'PATCH',
+          label: 'Auto-Patcher',
+          shortLabel: 'PATCH',
+          description: 'AST patch synthesis & sandbox verification',
+          icon: GitPullRequest,
+        },
+        {
           key: 'REPORT',
           label: 'Executive Synthesis',
           shortLabel: 'REPORT',
@@ -516,8 +534,9 @@ export default function ScanConsolePage() {
         },
       ];
 
-      const stageOrder = ['QUEUED', 'RECON', 'ATTACK', 'VALIDATION', 'REPORTING', 'COMPLETED'];
-      const currentIndex = stageOrder.indexOf(status);
+      const stageOrder = ['QUEUED', 'RECON', 'ATTACK', 'VALIDATION', 'PATCHING', 'REPORTING', 'COMPLETED'];
+      const normalizedStatus = status === 'PATCH' ? 'PATCHING' : status === 'REPORT' ? 'REPORTING' : status;
+      const currentIndex = stageOrder.indexOf(normalizedStatus);
 
       return steps.map((s, idx) => {
         const stepStatusIdx = idx + 1;
@@ -553,6 +572,7 @@ export default function ScanConsolePage() {
         if (logFilter === 'SECRETS' && !type.includes('SECRET') && !type.includes('TRUFFLEHOG')) return false;
         if (logFilter === 'ATTACK' && !type.includes('ATTACK') && !type.includes('NUCLEI')) return false;
         if (logFilter === 'VALIDATE' && !type.includes('VALIDATION') && !type.includes('LLM_TRIAGE')) return false;
+        if (logFilter === 'PATCH' && !type.includes('PATCH') && !type.includes('SANDBOX') && !type.includes('PR_DISPATCHED')) return false;
         if (logFilter === 'REPORT' && !type.includes('REPORT')) return false;
         if (logFilter === 'ERRORS' && !type.includes('FAILED') && !type.includes('ERROR') && !type.includes('CANCEL')) return false;
       }
@@ -700,6 +720,17 @@ export default function ScanConsolePage() {
             CANCELLED
           </span>
         );
+      case 'PATCHING':
+      case 'PATCH':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-[4px] text-[11px] font-mono font-medium bg-primary/10 text-primary border border-primary/20">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            AUTO-PATCHER
+          </span>
+        );
       case 'QUEUED':
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-[4px] text-[11px] font-mono font-medium bg-secondary text-muted-foreground border border-border">
@@ -740,6 +771,9 @@ export default function ScanConsolePage() {
     }
     if (t.includes('VALIDATION') || t.includes('LLM_TRIAGE')) {
       return 'bg-blue-500/15 text-blue-400 border-blue-500/30';
+    }
+    if (t.includes('PATCH') || t.includes('SANDBOX') || t.includes('PR_DISPATCHED')) {
+      return 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30';
     }
     return 'bg-zinc-800 text-zinc-300 border-zinc-700';
   };
@@ -891,7 +925,7 @@ export default function ScanConsolePage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${pipelineSteps.length === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}>
             {pipelineSteps.map((step, idx) => {
               const StepIcon = step.icon;
               const isStepCompleted = step.state === 'completed';
@@ -1043,7 +1077,7 @@ export default function ScanConsolePage() {
             {/* Filter Bar */}
             <div className="px-3 py-2 bg-[#121212] border-b border-[#333333] flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
               <div className="flex items-center gap-1 overflow-x-auto py-0.5">
-                {['ALL', 'RECON', 'SECRETS', 'ATTACK', 'VALIDATE', 'REPORT', 'ERRORS'].map((f) => (
+                {['ALL', 'RECON', 'SECRETS', 'ATTACK', 'VALIDATE', 'PATCH', 'REPORT', 'ERRORS'].map((f) => (
                   <button
                     key={f}
                     onClick={() => setLogFilter(f)}

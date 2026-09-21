@@ -110,7 +110,8 @@ Respond with ONLY a JSON object in this exact format:
       }
 
       await this.logEvent('LLM_TRIAGE_FINISHED', { falsePositives, confirmedIssues });
-      return { success: true, nextStep: 'REPORT' };
+      const nextStep = confirmedIssues > 0 ? 'PATCH' : 'REPORT';
+      return { success: true, nextStep };
 
     } catch (error: any) {
       await this.logEvent('VALIDATION_FAILED', { error: error.message });

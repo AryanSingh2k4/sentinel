@@ -57,8 +57,11 @@ export class AttackAgent extends BaseAgent {
           result.info.description ? `Description: ${result.info.description}` : null,
           result.extracted_results && result.extracted_results.length > 0 
             ? `Extracted: ${result.extracted_results.join(', ')}` 
-            : null
-        ].filter(Boolean).join('\n');
+            : null,
+          result.curl_command ? `cURL PoC:\n${result.curl_command}` : null,
+          result.request ? `HTTP Request:\n${result.request}` : null,
+          result.response ? `HTTP Response:\n${result.response.substring(0, 1500)}` : null
+        ].filter(Boolean).join('\n\n');
 
         // Store the finding
         await supabaseAdmin.from('candidate_findings').insert({

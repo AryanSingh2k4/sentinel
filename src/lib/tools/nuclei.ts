@@ -19,6 +19,9 @@ export interface NucleiResult {
   ip?: string;
   timestamp: string;
   extracted_results?: string[];
+  curl_command?: string;
+  request?: string;
+  response?: string;
 }
 
 /**
@@ -38,8 +41,10 @@ export async function runNuclei(urls: string[], onResult: (result: NucleiResult)
     // -l: file list
     // -jsonl: output JSON per line
     // -silent: no banner/logs in stdout
-    // We are running default templates which include vulnerabilities, misconfigurations, default credentials, etc.
-    const nuclei = spawn(nucleiPath, ['-l', tempFilePath, '-jsonl', '-silent'], {
+    // -irr: include request/response and curl-command in output
+    // -c: concurrency limit (25)
+    // -timeout: request timeout in seconds (5s)
+    const nuclei = spawn(nucleiPath, ['-l', tempFilePath, '-jsonl', '-silent', '-irr', '-c', '25', '-timeout', '5'], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
 
@@ -72,7 +77,10 @@ export async function runNuclei(urls: string[], onResult: (result: NucleiResult)
           matched_at,
           ip: parsed.ip,
           timestamp: parsed.timestamp,
-          extracted_results: parsed['extracted-results']
+          extracted_results: parsed['extracted-results'],
+          curl_command: parsed['curl-command'] || parsed.curl_command,
+          request: parsed.request,
+          response: parsed.response,
         });
       } catch (e) {
         // Ignore JSON parse errors for non-conforming lines
