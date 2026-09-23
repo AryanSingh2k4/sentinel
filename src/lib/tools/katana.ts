@@ -9,14 +9,16 @@ export interface KatanaResult {
 
 import path from 'path';
 
+import { getBinaryPath } from './binaryPath';
+
 /**
  * Wrapper for ProjectDiscovery's Katana crawler
  * Ensure Katana is installed and accessible in the system PATH.
  */
 export async function runKatana(target: string, onResult: (result: KatanaResult) => Promise<void> | void): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Resolve absolute path to the local binary
-    const katanaPath = path.resolve(process.cwd(), 'bin', 'katana.exe');
+    // Resolve cross-platform path or system PATH binary
+    const katanaPath = getBinaryPath('katana');
     
     // -d 2: crawl depth 2, -ct 2: max crawl time 2 minutes, -silent: no banner
     const katana = spawn(katanaPath, ['-u', target, '-j', '-silent', '-d', '2', '-ct', '2'], {

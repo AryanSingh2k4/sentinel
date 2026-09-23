@@ -18,6 +18,8 @@ export interface HttpxResult {
  * Wrapper for ProjectDiscovery's httpx
  * Used to filter live hosts and fingerprint technology stacks.
  */
+import { getBinaryPath } from './binaryPath';
+
 export async function runHttpx(urls: string[], onResult: (result: HttpxResult) => Promise<void> | void): Promise<void> {
   if (urls.length === 0) return;
 
@@ -25,8 +27,8 @@ export async function runHttpx(urls: string[], onResult: (result: HttpxResult) =
   await fs.writeFile(tempFilePath, urls.join('\n'));
 
   return new Promise((resolve, reject) => {
-    // Resolve absolute path to the local binary
-    const httpxPath = path.resolve(process.cwd(), 'bin', 'httpx.exe');
+    // Resolve cross-platform path or system PATH binary
+    const httpxPath = getBinaryPath('httpx');
     
     // -l: file list
     // -json: output JSON

@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import readline from 'readline';
 import path from 'path';
+import { getBinaryPath } from './binaryPath';
 
 export interface TruffleHogResult {
   detectorName: string;
@@ -23,7 +24,7 @@ export async function runTruffleHogGit(
   onResult: (result: TruffleHogResult) => Promise<void> | void
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const trufflehogPath = path.resolve(process.cwd(), 'bin', 'trufflehog.exe');
+    const trufflehogPath = getBinaryPath('trufflehog');
 
     let normalizedUrl = repoUrl.trim();
     if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://') && !normalizedUrl.startsWith('git@')) {
@@ -107,7 +108,7 @@ export async function runTruffleHogFilesystem(
   onResult: (result: TruffleHogResult) => Promise<void> | void
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const trufflehogPath = path.resolve(process.cwd(), 'bin', 'trufflehog.exe');
+    const trufflehogPath = getBinaryPath('trufflehog');
 
     const trufflehog = spawn(
       trufflehogPath,

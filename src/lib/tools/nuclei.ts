@@ -28,6 +28,8 @@ export interface NucleiResult {
  * Wrapper for ProjectDiscovery's Nuclei
  * Used to run vulnerability templates against live targets.
  */
+import { getBinaryPath } from './binaryPath';
+
 export async function runNuclei(urls: string[], onResult: (result: NucleiResult) => Promise<void> | void): Promise<void> {
   if (urls.length === 0) return;
 
@@ -35,8 +37,8 @@ export async function runNuclei(urls: string[], onResult: (result: NucleiResult)
   await fs.writeFile(tempFilePath, urls.join('\n'));
 
   return new Promise((resolve, reject) => {
-    // Resolve absolute path to the local binary
-    const nucleiPath = path.resolve(process.cwd(), 'bin', 'nuclei.exe');
+    // Resolve cross-platform path or system PATH binary
+    const nucleiPath = getBinaryPath('nuclei');
     
     // -l: file list
     // -jsonl: output JSON per line
