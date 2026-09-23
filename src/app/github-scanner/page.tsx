@@ -275,14 +275,14 @@ export default function GitHubScannerPage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-secondary border border-border text-foreground text-[12px] font-mono mb-4">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              <span>Deep Git History + Live TruffleHog Engine</span>
+              <span>Full Repository SAST + Secret Audit + Autonomous Code Fixer</span>
             </div>
 
             <h1 className="text-[28px] md:text-[34px] font-serif font-normal text-foreground tracking-tight leading-tight mb-2">
-              GitHub & Git Repository Secret Scanner
+              GitHub Code Security & Vulnerability Scanner
             </h1>
             <p className="text-[14px] text-muted-foreground leading-relaxed mb-6">
-              Detect leaked API keys, tokens, SSH private keys, and cloud credentials across full Git commit histories. Verified active keys are flagged in real-time, with LLM false-positive triage to keep your signal clean.
+              Audit entire codebases for OWASP Top 10 vulnerabilities (SQL Injection, XSS, RCE, Path Traversal, SSRF) alongside leaked secrets across full Git histories. Sentinel autonomously validates exploitability, synthesizes AST-verified code fixes, and dispatches GitHub Pull Requests.
             </p>
 
             {/* Input Form */}
@@ -310,12 +310,12 @@ export default function GitHubScannerPage() {
                   {startingScan ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />
-                      <span>Cloning & Scanning...</span>
+                      <span>Ingesting & Auditing...</span>
                     </>
                   ) : (
                     <>
-                      <Key className="h-4 w-4" />
-                      <span>Start Secret Scan</span>
+                      <Shield className="h-4 w-4" />
+                      <span>Audit & Patch Repository</span>
                     </>
                   )}
                 </button>

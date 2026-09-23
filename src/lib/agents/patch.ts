@@ -5,6 +5,7 @@ import * as diff from 'diff';
 import ts from 'typescript';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'dummy_key',
@@ -572,6 +573,16 @@ ${explanation}
    * Helper to resolve or construct code content for demonstration
    */
   private resolveOriginalCode(filePath: string, reasoning: string, title: string): string {
+    // 1. Check if file exists in the cloned repository directory
+    const tempAuditDir = path.join(os.tmpdir(), `sentinel-audit-${this.context.scanId}`);
+    const auditFileAbs = path.resolve(tempAuditDir, filePath);
+    if (fs.existsSync(auditFileAbs) && fs.statSync(auditFileAbs).isFile()) {
+      try {
+        return fs.readFileSync(auditFileAbs, 'utf-8');
+      } catch {}
+    }
+
+    // 2. Check local workspace
     const localAbs = path.resolve(process.cwd(), filePath);
     if (fs.existsSync(localAbs) && fs.statSync(localAbs).isFile()) {
       try {

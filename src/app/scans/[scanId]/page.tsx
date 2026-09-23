@@ -189,25 +189,40 @@ export default function ScanConsolePage() {
   // 3. Fetch full scan telemetry
   const fetchScanData = async (isInitial = false) => {
     if (!scanId) return;
-    try {
-      const res = await fetch(`/api/scans/${scanId}`);
-      if (!res.ok) {
-        if (res.status === 404) throw new Error('Scan not found');
-        throw new Error('Failed to load scan telemetry');
+    let attempts = isInitial ? 3 : 1;
+
+    while (attempts > 0) {
+      try {
+        const res = await fetch(`/api/scans/${scanId}`);
+        if (res.ok) {
+          const json = await res.json();
+          setData(json);
+          if (isInitial && json.scan?.target_type === 'git') {
+            setActiveTab('findings');
+          }
+          setError(null);
+          if (isInitial) setLoading(false);
+          return;
+        }
+        if (res.status === 404 && attempts > 1) {
+          // Wait briefly in case scan record was just inserted
+          await new Promise((r) => setTimeout(r, 500));
+        } else if (!res.ok) {
+          throw new Error(res.status === 404 ? 'Scan not found' : 'Failed to load scan telemetry');
+        }
+      } catch (err: any) {
+        attempts--;
+        if (attempts <= 0) {
+          console.error('Error fetching scan details:', err);
+          if (isInitial) {
+            setError(err.message || 'Error fetching scan details');
+          }
+        } else {
+          await new Promise((r) => setTimeout(r, 500));
+        }
+      } finally {
+        if (isInitial && attempts <= 0) setLoading(false);
       }
-      const json = await res.json();
-      setData(json);
-      if (isInitial && json.scan?.target_type === 'git') {
-        setActiveTab('findings');
-      }
-      setError(null);
-    } catch (err: any) {
-      console.error('Error fetching scan details:', err);
-      if (isInitial) {
-        setError(err.message || 'Error fetching scan details');
-      }
-    } finally {
-      if (isInitial) setLoading(false);
     }
   };
 
@@ -443,10 +458,10 @@ export default function ScanConsolePage() {
       const steps = [
         {
           key: 'SECRETS',
-          label: 'Secret Scanning',
-          shortLabel: 'SECRETS',
-          description: 'TruffleHog credential and token discovery',
-          icon: Lock,
+          label: 'Code Audit & Secrets',
+          shortLabel: 'AUDIT',
+          description: 'SAST vulnerability engine & TruffleHog secrets',
+          icon: Code2,
         },
         {
           key: 'VALIDATE',
@@ -569,7 +584,7 @@ export default function ScanConsolePage() {
       if (logFilter !== 'ALL') {
         const type = evt.event_type.toUpperCase();
         if (logFilter === 'RECON' && !type.includes('RECON') && !type.includes('KATANA') && !type.includes('HTTPX')) return false;
-        if (logFilter === 'SECRETS' && !type.includes('SECRET') && !type.includes('TRUFFLEHOG')) return false;
+        if (logFilter === 'SECRETS' && !type.includes('SECRET') && !type.includes('TRUFFLEHOG') && !type.includes('SAST') && !type.includes('GIT')) return false;
         if (logFilter === 'ATTACK' && !type.includes('ATTACK') && !type.includes('NUCLEI')) return false;
         if (logFilter === 'VALIDATE' && !type.includes('VALIDATION') && !type.includes('LLM_TRIAGE')) return false;
         if (logFilter === 'PATCH' && !type.includes('PATCH') && !type.includes('SANDBOX') && !type.includes('PR_DISPATCHED')) return false;

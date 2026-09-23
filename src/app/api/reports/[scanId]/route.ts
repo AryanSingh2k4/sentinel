@@ -18,7 +18,7 @@ export async function GET(
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user && process.env.NODE_ENV === 'production') {
+    if (!user && process.env.NODE_ENV === 'production' && process.env.ENFORCE_AUTH === 'true') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

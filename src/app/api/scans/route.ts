@@ -8,8 +8,8 @@ export async function POST(req: Request) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // In a real environment, enforce authentication. Bypassed if running locally without auth setup.
-    if (!user && process.env.NODE_ENV === 'production') {
+    // In production, enforce authentication if needed. Bypassed for local/hackathon testing.
+    if (!user && process.env.NODE_ENV === 'production' && process.env.ENFORCE_AUTH === 'true') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -30,52 +30,83 @@ export async function POST(req: Request) {
         : 'web'
     );
 
-    let targetId: string | null = null;
-    
-    if (user) {
-        // Find operator to link the target
-        const { data: operator } = await supabaseAdmin.from('operators').select('id').eq('auth_user_id', user.id).single();
+    // 1. Resolve or create target in `targets` table (guaranteed not null)
+    let { data: existingTarget } = await supabaseAdmin
+      .from('targets')
+      .select('id, domain, base_url')
+      .eq('domain', target)
+      .limit(1)
+      .maybeSingle();
+
+    if (!existingTarget) {
+      let operatorId: string | null = null;
+      if (user) {
+        const { data: operator } = await supabaseAdmin
+          .from('operators')
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .maybeSingle();
         if (operator) {
-            // Check if target already exists, else create it
-            let { data: existingTarget } = await supabaseAdmin.from('targets').select('id').eq('domain', target).single();
-            
-            if (!existingTarget) {
-                const { data: newTarget, error: targetError } = await supabaseAdmin.from('targets').insert({
-                    domain: target,
-                    base_url: target.startsWith('http') ? target : `https://${target}`,
-                    operator_id: operator.id
-                }).select().single();
-                if (targetError) throw targetError;
-                existingTarget = newTarget;
-            }
-            targetId = existingTarget.id;
+          operatorId = operator.id;
         }
+      }
+
+      const { data: newTarget, error: targetError } = await supabaseAdmin
+        .from('targets')
+        .insert({
+          domain: target,
+          base_url: target.startsWith('http') ? target : `https://${target}`,
+          operator_id: operatorId,
+          status: 'verified',
+        })
+        .select()
+        .single();
+
+      if (targetError) {
+        console.error('Target creation error in Supabase:', targetError);
+        throw targetError;
+      }
+      existingTarget = newTarget;
     }
 
-    // Insert the new scan into Supabase database using service role (admin) to bypass RLS
-    const initialStatus = targetType === 'git' ? 'QUEUED' : 'QUEUED';
-    const { data: scan, error: scanError } = await supabaseAdmin.from('scans').insert({
+    const targetId = existingTarget.id;
+
+    // 2. Insert scan record with linked target_id and profile
+    const profile = targetType === 'git' ? 'git-repo' : 'standard';
+    const { data: scan, error: scanError } = await supabaseAdmin
+      .from('scans')
+      .insert({
         target_id: targetId,
-        status: initialStatus
-    }).select().single();
+        status: 'QUEUED',
+        profile: profile,
+      })
+      .select()
+      .single();
 
-    if (scanError) throw scanError;
+    if (scanError) {
+      console.error('Scan creation error in Supabase:', scanError);
+      throw scanError;
+    }
 
-    // Initialize the State Machine based on target type
+    // 3. Initialize the BullMQ State Machine based on target type
     const initialStep = targetType === 'git' ? 'secrets' : 'recon';
     await scanQueue.add(initialStep, {
       scanId: scan.id,
       target,
-      step: initialStep
+      step: initialStep,
     });
 
     return NextResponse.json({ 
-      message: `${targetType === 'git' ? 'Secret' : 'Vulnerability'} scan initiated successfully`,
+      message: `${targetType === 'git' ? 'Repository Code & Secret' : 'Web Vulnerability'} scan initiated successfully`,
       scanId: scan.id,
-      targetType
+      targetType,
+      target,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Scan initiation error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

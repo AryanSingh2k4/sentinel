@@ -19,8 +19,8 @@ export async function GET(
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Bypassed if running locally without auth setup
-    if (!user && process.env.NODE_ENV === 'production') {
+    // Bypassed if running locally or demo mode without auth setup
+    if (!user && process.env.NODE_ENV === 'production' && process.env.ENFORCE_AUTH === 'true') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

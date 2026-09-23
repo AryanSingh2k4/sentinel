@@ -25,15 +25,21 @@ function parseSecretFinding(
   const scan = finding.scan_id ? scanMap.get(finding.scan_id) : null;
   const confirmedData = confirmedMap.get(finding.id);
 
-  // Extract detector name: e.g. "Detector: OpenAI", "Detector: AWS", etc.
-  let detector = 'Generic Secret';
+  // Extract detector or vulnerability name: e.g. "SQL Injection (CWE-89)", "OpenAI", etc.
+  let detector = 'Code Vulnerability';
+  const vulnMatch = reasoning.match(/Vulnerability:\s*([^\r\n]+)/i);
   const detectorMatch = reasoning.match(/Detector:\s*([^\r\n]+)/i);
-  if (detectorMatch && detectorMatch[1]) {
+
+  if (vulnMatch && vulnMatch[1]) {
+    detector = vulnMatch[1].trim();
+  } else if (detectorMatch && detectorMatch[1]) {
     detector = detectorMatch[1].trim();
   } else {
     const titleMatch = title.match(/Exposed Secret:\s*([^\s]+)/i);
     if (titleMatch && titleMatch[1]) {
       detector = titleMatch[1].trim();
+    } else if (title) {
+      detector = title.split(' in ')[0] || 'Vulnerability';
     }
   }
 
@@ -47,6 +53,12 @@ function parseSecretFinding(
     if (titleFileMatch && titleFileMatch[1]) {
       fileLocation = titleFileMatch[1].trim();
     }
+  }
+
+  // Extract line number if present
+  const lineMatch = reasoning.match(/Line:\s*(\d+)/i);
+  if (lineMatch && lineMatch[1] && !fileLocation.includes(':')) {
+    fileLocation = `${fileLocation}:${lineMatch[1]}`;
   }
 
   // Extract commit hash: e.g. "Commit: 9f3c18b..."
@@ -63,11 +75,14 @@ function parseSecretFinding(
     author = authorMatch[1].trim();
   }
 
-  // Extract secret snippet: e.g. "Secret Snippet: sk-proj-*****"
+  // Extract snippet (Secret Snippet or Vulnerable Code Snippet)
   let secretSnippet: string | null = null;
   const snippetMatch = reasoning.match(/Secret Snippet:\s*([^\r\n]+)/i);
+  const codeSnippetMatch = reasoning.match(/Vulnerable Code Snippet:\r?\n([\s\S]*?)(?=(?:\r?\n\r?\nRemediation:|$))/i);
   if (snippetMatch && snippetMatch[1]) {
     secretSnippet = snippetMatch[1].trim();
+  } else if (codeSnippetMatch && codeSnippetMatch[1]) {
+    secretSnippet = codeSnippetMatch[1].trim();
   }
 
   // Verification status: TruffleHog live verification
@@ -191,14 +206,21 @@ export async function GET() {
       }
     });
 
-    // 4. Filter for Secret findings
+    // 4. Filter for repository findings (Code Vulnerabilities & Secrets)
     const secretFindings = (candidateFindings || []).filter((f: any) => {
       const title = (f.title || '').toLowerCase();
       const reasoning = (f.reasoning || '').toLowerCase();
       return (
         title.startsWith('exposed secret') ||
         reasoning.includes('detector:') ||
+        reasoning.includes('vulnerability:') ||
+        reasoning.includes('cwe-') ||
         title.includes('secret') ||
+        title.includes('injection') ||
+        title.includes('xss') ||
+        title.includes('traversal') ||
+        title.includes('rce') ||
+        title.includes('ssrf') ||
         reasoning.includes('trufflehog')
       );
     });
