@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+bin
+*.bat
+*.log
+dump.rdb
+screenshot_*.png
+test_report.*
+.env*.local
