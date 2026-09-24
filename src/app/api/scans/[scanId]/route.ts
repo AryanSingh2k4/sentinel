@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/agents/base';
 import { createClient } from '@/lib/supabase/server';
+import { resolveScanTarget } from '@/lib/utils/target-resolver';
 
 export const dynamic = 'force-dynamic';
 
@@ -123,35 +124,34 @@ export async function GET(
       }
     }
 
-    // Determine target type (git vs web)
-    const targetDomain = scan.targets?.domain || scan.targets?.base_url || 'Unknown Target';
-    const isGitTarget =
-      scan.profile?.toLowerCase().includes('git') ||
-      targetDomain.includes('github.com') ||
-      targetDomain.includes('gitlab.com') ||
-      targetDomain.includes('bitbucket.org') ||
-      targetDomain.endsWith('.git') ||
-      targetDomain.startsWith('git@') ||
-      Boolean(
-        events?.some(
-          (e) =>
-            e.event_type?.toUpperCase().includes('SECRET') ||
-            e.event_type?.toUpperCase().includes('TRUFFLEHOG')
-        )
-      );
+    // Determine target and type cleanly using resolveScanTarget
+    const resolved = resolveScanTarget({
+      ...scan,
+      events,
+    });
+    const targetDomain = resolved.display;
+    const targetType: 'web' | 'git' = resolved.targetType;
 
-    const targetType: 'web' | 'git' = isGitTarget ? 'git' : 'web';
+    // Fallback started_at to first event timestamp or creation time if null
+    const firstEventTime = events && events.length > 0 ? events[0].created_at : null;
+    const effectiveStartedAt = scan.started_at || firstEventTime || (scan as any).created_at || null;
+
+    if (!scan.started_at && effectiveStartedAt) {
+      await supabaseAdmin
+        .from('scans')
+        .update({ started_at: effectiveStartedAt })
+        .eq('id', scanId);
+    }
 
     return NextResponse.json({
       scan: {
         id: scan.id,
         target: targetDomain,
-        base_url:
-          scan.targets?.base_url ||
-          (targetDomain.startsWith('http') ? targetDomain : `https://${targetDomain}`),
+        target_raw: resolved.raw,
+        base_url: scan.targets?.base_url || resolved.baseUrl,
         target_type: targetType,
         status: scan.status || 'QUEUED',
-        started_at: scan.started_at,
+        started_at: effectiveStartedAt,
         completed_at: scan.completed_at,
         profile: scan.profile,
       },
@@ -226,3 +226,5 @@ export async function PATCH(
     );
   }
 }
+
+export const POST = PATCH;

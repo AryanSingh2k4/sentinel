@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { scanQueue } from '@/lib/queue/bull';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/agents/base';
+import { parseGitTarget } from '@/lib/utils/target-resolver';
 
 export async function POST(req: Request) {
   try {
@@ -20,15 +21,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Target URL or Repository is required' }, { status: 400 });
     }
 
-    const targetType = body.targetType || (
-      target.includes('github.com') ||
-      target.includes('gitlab.com') ||
-      target.includes('bitbucket.org') ||
-      target.endsWith('.git') ||
-      target.startsWith('git@')
-        ? 'git'
-        : 'web'
-    );
+    const gitInfo = parseGitTarget(target);
+    const targetType = body.targetType || (gitInfo.isGit ? 'git' : 'web');
+    const baseUrl = gitInfo.isGit
+      ? gitInfo.httpUrl
+      : (target.startsWith('http') ? target : `https://${target}`);
 
     // 1. Resolve or create target in `targets` table (guaranteed not null)
     let { data: existingTarget } = await supabaseAdmin
@@ -37,6 +34,16 @@ export async function POST(req: Request) {
       .eq('domain', target)
       .limit(1)
       .maybeSingle();
+
+    if (!existingTarget && gitInfo.isGit && gitInfo.fullName) {
+      const { data: byFullName } = await supabaseAdmin
+        .from('targets')
+        .select('id, domain, base_url')
+        .eq('domain', gitInfo.fullName)
+        .limit(1)
+        .maybeSingle();
+      if (byFullName) existingTarget = byFullName;
+    }
 
     if (!existingTarget) {
       let operatorId: string | null = null;
@@ -55,7 +62,7 @@ export async function POST(req: Request) {
         .from('targets')
         .insert({
           domain: target,
-          base_url: target.startsWith('http') ? target : `https://${target}`,
+          base_url: baseUrl,
           operator_id: operatorId,
           status: 'verified',
         })
@@ -79,6 +86,7 @@ export async function POST(req: Request) {
         target_id: targetId,
         status: 'QUEUED',
         profile: profile,
+        started_at: new Date().toISOString(),
       })
       .select()
       .single();

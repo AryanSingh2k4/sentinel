@@ -44,6 +44,7 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Navbar } from '@/components/Navbar';
+import { formatTargetDisplay } from '@/lib/utils/target-resolver';
 
 // Types
 interface ScanMeta {
@@ -314,11 +315,13 @@ export default function ScanConsolePage() {
     if (!data?.scan) return;
 
     const calculateDuration = () => {
-      const startTime = data.scan.started_at
-        ? new Date(data.scan.started_at).getTime()
-        : null;
+      const rawStart =
+        data.scan.started_at ||
+        (data.events && data.events.length > 0 ? data.events[0].created_at : null);
 
-      if (!startTime) {
+      const startTime = rawStart ? new Date(rawStart).getTime() : null;
+
+      if (!startTime || isNaN(startTime)) {
         setDurationText('00:00');
         return;
       }
@@ -355,12 +358,12 @@ export default function ScanConsolePage() {
     const timer = setInterval(calculateDuration, 1000);
 
     return () => clearInterval(timer);
-  }, [data?.scan?.started_at, data?.scan?.completed_at, data?.scan?.status]);
+  }, [data?.scan?.started_at, data?.scan?.completed_at, data?.scan?.status, data?.events]);
 
-  // 6. Auto-scroll terminal to bottom
+  // 6. Auto-scroll terminal to bottom (scrolls only internal terminal container, never the window/page)
   useEffect(() => {
-    if (autoScroll && terminalEndRef.current) {
-      terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (autoScroll && terminalContainerRef.current) {
+      terminalContainerRef.current.scrollTop = terminalContainerRef.current.scrollHeight;
     }
   }, [data?.events, autoScroll, isLogsCleared]);
 
@@ -828,7 +831,7 @@ export default function ScanConsolePage() {
               <div>
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h1 className="text-[22px] sm:text-[26px] font-serif font-medium text-foreground tracking-tight">
-                    {scan.target}
+                    {formatTargetDisplay(scan.target)}
                   </h1>
                   <a
                     href={scan.base_url}
@@ -869,6 +872,8 @@ export default function ScanConsolePage() {
                     <span className="text-foreground">
                       {scan.started_at
                         ? new Date(scan.started_at).toLocaleTimeString()
+                        : data.events && data.events.length > 0
+                        ? new Date(data.events[0].created_at).toLocaleTimeString()
                         : 'Pending start'}
                     </span>
                   </div>
@@ -1594,7 +1599,7 @@ export default function ScanConsolePage() {
             </div>
             <p className="text-[13px] text-muted-foreground leading-relaxed mb-6">
               Are you sure you want to stop the autonomous agents for{' '}
-              <span className="text-foreground font-mono font-medium">{scan.target}</span>? This
+              <span className="text-foreground font-mono font-medium">{formatTargetDisplay(scan.target)}</span>? This
               will immediately halt crawler subtasks, tool executions, and LLM validation.
             </p>
             {cancelError && (

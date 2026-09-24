@@ -30,8 +30,8 @@ const sentinelSerif = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Sentinel — Autonomous Security Operations",
-  description: "AI-assisted security testing and operational intelligence platform.",
+  title: "Sentinel | Autonomous Pentesting & Code Remediation",
+  description: "Autonomous AI-powered security pentesting and intelligent repository code remediation.",
 };
 
 export default function RootLayout({
