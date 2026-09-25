@@ -63,6 +63,36 @@ services:
     depends_on:
       - redis
 
+  # -------------------------------------------------------------------------
+  # 4. Next.js Web Application & Dashboard (Port 3000)
+  # -------------------------------------------------------------------------
+  sentinel-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+        - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    container_name: sentinel-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - LLM_MODEL=${LLM_MODEL}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_PAT=${GITHUB_PAT}
+      - ENFORCE_AUTH=${ENFORCE_AUTH:-false}
+    depends_on:
+      - redis
+
 volumes:
   redis_data:
+
 
