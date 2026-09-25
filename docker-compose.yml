@@ -8,13 +8,21 @@ services:
     image: redis:7-alpine
     container_name: sentinel-redis
     restart: unless-stopped
+    command: >
+      sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
+        redis-server --requirepass "$$REDIS_PASSWORD";
+      else
+        redis-server;
+      fi'
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
 
   # -------------------------------------------------------------------------
-  # 2. Web Attack Worker (Katana, HTTPx, Nuclei) - Capped at 1 GB RAM
+  # 2. Web Attack Worker (Katana, HTTPx, Nuclei) - Allocated up to 4 GB RAM
   # -------------------------------------------------------------------------
   web-worker:
     build:
@@ -22,12 +30,12 @@ services:
       dockerfile: Dockerfile.web-worker
     container_name: sentinel-web-worker
     restart: unless-stopped
-    mem_limit: 1024m
+    mem_limit: 4096m
     cpus: 1.0
     environment:
       - NODE_ENV=production
       - WORKER_ROLE=web
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
@@ -38,7 +46,7 @@ services:
       - redis
 
   # -------------------------------------------------------------------------
-  # 3. Git Audit & Remediation Worker (Git, TruffleHog, SAST, PRs) - Capped at 1 GB RAM
+  # 3. Git Audit & Remediation Worker (Git, TruffleHog, SAST, PRs) - Allocated up to 4 GB RAM
   # -------------------------------------------------------------------------
   git-worker:
     build:
@@ -46,12 +54,12 @@ services:
       dockerfile: Dockerfile.git-worker
     container_name: sentinel-git-worker
     restart: unless-stopped
-    mem_limit: 1024m
+    mem_limit: 4096m
     cpus: 1.0
     environment:
       - NODE_ENV=production
       - WORKER_ROLE=git
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
@@ -64,9 +72,10 @@ services:
       - redis
 
   # -------------------------------------------------------------------------
-  # 4. Next.js Web Application & Dashboard (Port 3000)
+  # 4. Optional Next.js Web Application (Only started with: --profile web)
   # -------------------------------------------------------------------------
   sentinel-web:
+    profiles: ["web"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -79,7 +88,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
