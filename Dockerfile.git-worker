@@ -16,12 +16,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Download only TruffleHog (does not need Katana, HTTPx, or Nuclei)
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "x86_64" ]; then \
-      curl -sL https://github.com/trufflesecurity/trufflehog/releases/download/v3.88.2/trufflehog_3.88.2_linux_amd64.tar.gz -o trufflehog.tar.gz && \
-      tar -xzf trufflehog.tar.gz trufflehog && mv trufflehog /usr/local/bin/ && rm trufflehog.tar.gz; \
-    fi && \
+# Download only TruffleHog for x86_64 or aarch64/ARM64
+RUN RAW_ARCH=$(uname -m) && \
+    if [ "$RAW_ARCH" = "x86_64" ]; then ARCH="amd64"; \
+    elif [ "$RAW_ARCH" = "aarch64" ] || [ "$RAW_ARCH" = "arm64" ]; then ARCH="arm64"; \
+    else echo "Unsupported arch: $RAW_ARCH" && exit 1; fi && \
+    curl -sL https://github.com/trufflesecurity/trufflehog/releases/download/v3.88.2/trufflehog_3.88.2_linux_${ARCH}.tar.gz -o trufflehog.tar.gz && \
+    tar -xzf trufflehog.tar.gz trufflehog && mv trufflehog /usr/local/bin/ && rm trufflehog.tar.gz && \
     chmod +x /usr/local/bin/*
 
 # Copy package dependencies

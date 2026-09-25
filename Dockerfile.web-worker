@@ -16,19 +16,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Download only web security binaries (Katana, HTTPx, Nuclei)
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "x86_64" ]; then \
-      # Nuclei
-      curl -sL https://github.com/projectdiscovery/nuclei/releases/download/v3.3.7/nuclei_3.3.7_linux_amd64.zip -o nuclei.zip && \
-      unzip -q nuclei.zip nuclei && mv nuclei /usr/local/bin/ && rm nuclei.zip && \
-      # Katana
-      curl -sL https://github.com/projectdiscovery/katana/releases/download/v1.1.0/katana_1.1.0_linux_amd64.zip -o katana.zip && \
-      unzip -q katana.zip katana && mv katana /usr/local/bin/ && rm katana.zip && \
-      # HTTPx
-      curl -sL https://github.com/projectdiscovery/httpx/releases/download/v1.6.9/httpx_1.6.9_linux_amd64.zip -o httpx.zip && \
-      unzip -q httpx.zip httpx && mv httpx /usr/local/bin/ && rm httpx.zip; \
-    fi && \
+# Download only web security binaries (Katana, HTTPx, Nuclei) for x86_64 or aarch64/ARM64
+RUN RAW_ARCH=$(uname -m) && \
+    if [ "$RAW_ARCH" = "x86_64" ]; then ARCH="amd64"; \
+    elif [ "$RAW_ARCH" = "aarch64" ] || [ "$RAW_ARCH" = "arm64" ]; then ARCH="arm64"; \
+    else echo "Unsupported arch: $RAW_ARCH" && exit 1; fi && \
+    # Nuclei
+    curl -sL https://github.com/projectdiscovery/nuclei/releases/download/v3.3.7/nuclei_3.3.7_linux_${ARCH}.zip -o nuclei.zip && \
+    unzip -q nuclei.zip nuclei && mv nuclei /usr/local/bin/ && rm nuclei.zip && \
+    # Katana
+    curl -sL https://github.com/projectdiscovery/katana/releases/download/v1.1.0/katana_1.1.0_linux_${ARCH}.zip -o katana.zip && \
+    unzip -q katana.zip katana && mv katana /usr/local/bin/ && rm katana.zip && \
+    # HTTPx
+    curl -sL https://github.com/projectdiscovery/httpx/releases/download/v1.6.9/httpx_1.6.9_linux_${ARCH}.zip -o httpx.zip && \
+    unzip -q httpx.zip httpx && mv httpx /usr/local/bin/ && rm httpx.zip && \
     chmod +x /usr/local/bin/*
 
 # Copy package dependencies
