@@ -6,6 +6,7 @@ import ts from 'typescript';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { parseGitTarget } from '@/lib/utils/target-resolver';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'dummy_key',
@@ -28,6 +29,34 @@ export interface GeneratedPatch {
   branchName?: string;
   prUrl?: string;
   prNumber?: number;
+}
+
+function extractJsonPayload(raw: string): any {
+  // Strip reasoning/thought blocks emitted by models like gemma-4-26b-a4b-it or deepseek
+  let clean = raw.replace(/<thought>[\s\S]*?<\/thought>/gi, '').trim();
+
+  // If wrapped in markdown code blocks like ```json ... ``` or ``` ... ```
+  const codeBlockMatch = clean.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (codeBlockMatch) {
+    clean = codeBlockMatch[1].trim();
+  }
+
+  // Attempt direct JSON parse
+  try {
+    return JSON.parse(clean);
+  } catch {}
+
+  // Attempt extracting first JSON object { ... }
+  const firstBrace = clean.indexOf('{');
+  const lastBrace = clean.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    const jsonSubstring = clean.substring(firstBrace, lastBrace + 1);
+    try {
+      return JSON.parse(jsonSubstring);
+    } catch {}
+  }
+
+  throw new Error('Failed to parse JSON payload from response');
 }
 
 export class PatchAgent extends BaseAgent {
@@ -70,7 +99,9 @@ export class PatchAgent extends BaseAgent {
       const generatedPatches: GeneratedPatch[] = [];
 
       for (const finding of targetFindings) {
-        const candidate = finding.candidate_findings;
+        const candidate: any = Array.isArray(finding.candidate_findings)
+          ? finding.candidate_findings[0]
+          : finding.candidate_findings;
         if (!candidate) continue;
 
         const title = candidate.title || 'Security Finding';
@@ -88,13 +119,20 @@ export class PatchAgent extends BaseAgent {
           }
         }
 
+        // Normalize Windows backslashes in file path to forward slashes for Git/GitHub, and strip line suffix
+        fileLocation = fileLocation.replace(/\\/g, '/').replace(/:\d+$/, '');
+
+        console.log(`[PatchAgent] Processing: ${title} (${fileLocation})`);
+
         // Generate synthetic mock code if file doesn't exist locally (for demonstration & remote targets)
         const originalCode = this.resolveOriginalCode(fileLocation, reasoning, title);
+        console.log(`[PatchAgent] Resolved original code (${originalCode.length} chars)`);
 
         // 2. Perform AST Analysis to map exact line numbers and scope
         const astContext = this.analyzeAST(originalCode, fileLocation, reasoning);
 
         // 3. Synthesize Initial Patch via LLM
+        console.log(`[PatchAgent] Synthesizing patch via LLM for ${fileLocation}...`);
         let { patchedCode, explanation } = await this.synthesizePatch(
           fileLocation,
           originalCode,
@@ -102,6 +140,7 @@ export class PatchAgent extends BaseAgent {
           title,
           reasoning
         );
+        console.log(`[PatchAgent] Patch synthesized for ${fileLocation}!`);
 
         // 4. Self-Healing Sandbox Verification Loop
         let sandboxPassed = false;
@@ -147,6 +186,17 @@ export class PatchAgent extends BaseAgent {
               explanation = revised.explanation;
             }
           }
+        }
+
+        // Guard: Prevent dispatching PR if patch generated no actual changes
+        if (patchedCode.trim() === originalCode.trim()) {
+          console.log(`[PatchAgent] No changes detected for ${fileLocation}. Skipping PR dispatch.`);
+          await this.logEvent('PATCH_SKIPPED_IDENTICAL', {
+            file: fileLocation,
+            findingId: finding.id,
+            message: 'Patched code is identical to original code; skipped PR creation.'
+          });
+          continue;
         }
 
         // 5. Generate Unified git diff
@@ -299,11 +349,13 @@ Respond with ONLY a JSON object in this exact format:
 
       const content = response.choices[0]?.message?.content;
       if (content) {
-        const parsed = JSON.parse(content);
-        return {
-          patchedCode: parsed.patchedCode || originalCode,
-          explanation: parsed.explanation || 'Remediated vulnerability and moved sensitive tokens to environment variables.'
-        };
+        const parsed = extractJsonPayload(content);
+        if (parsed.patchedCode && parsed.patchedCode.trim().length > 0) {
+          return {
+            patchedCode: parsed.patchedCode,
+            explanation: parsed.explanation || 'Remediated vulnerability and hardened source code.'
+          };
+        }
       }
     } catch (e: any) {
       console.warn('[PatchAgent] LLM patch generation error:', e.message);
@@ -384,11 +436,13 @@ Respond with ONLY a JSON object:
 
       const content = response.choices[0]?.message?.content;
       if (content) {
-        const parsed = JSON.parse(content);
-        return {
-          patchedCode: parsed.patchedCode || currentCode,
-          explanation: parsed.explanation || 'Auto-corrected syntax errors based on compiler feedback.'
-        };
+        const parsed = extractJsonPayload(content);
+        if (parsed.patchedCode && parsed.patchedCode.trim().length > 0) {
+          return {
+            patchedCode: parsed.patchedCode,
+            explanation: parsed.explanation || 'Auto-corrected syntax errors based on compiler feedback.'
+          };
+        }
       }
     } catch (e: any) {
       console.warn('[PatchAgent] Self-healing LLM error:', e.message);
@@ -413,13 +467,16 @@ Respond with ONLY a JSON object:
     const token = process.env.GITHUB_PAT || process.env.GITHUB_TOKEN;
 
     const targetUrl = this.context.target;
-    let owner = 'owner';
-    let repo = 'repository';
+    const gitInfo = parseGitTarget(targetUrl);
+    let owner = gitInfo.owner || 'owner';
+    let repo = gitInfo.repo || 'repository';
 
-    const match = targetUrl.match(/github\.com\/([^\/]+)\/([^\/\s#?]+)/i);
-    if (match) {
-      owner = match[1];
-      repo = match[2].replace(/\.git$/, '');
+    if (owner === 'owner' || repo === 'repository') {
+      const match = targetUrl.match(/(?:github\.com|gitlab\.com|bitbucket\.org)\/([^\/]+)\/([^\/\s#?]+)/i);
+      if (match) {
+        owner = match[1];
+        repo = match[2].replace(/\.git$/, '');
+      }
     }
 
     if (token && token.startsWith('gh')) {
@@ -561,7 +618,7 @@ ${explanation}
       }
     }
 
-    const fallbackPrUrl = `https://github.com/${owner}/${repo}/pull/new/${branchName}`;
+    const fallbackPrUrl = `https://${gitInfo.host || 'github.com'}/${owner}/${repo}/pull/new/${branchName}`;
     return {
       branchName,
       prUrl: fallbackPrUrl,
@@ -573,9 +630,11 @@ ${explanation}
    * Helper to resolve or construct code content for demonstration
    */
   private resolveOriginalCode(filePath: string, reasoning: string, title: string): string {
+    const cleanPath = filePath.replace(/:\d+$/, '');
+
     // 1. Check if file exists in the cloned repository directory
     const tempAuditDir = path.join(os.tmpdir(), `sentinel-audit-${this.context.scanId}`);
-    const auditFileAbs = path.resolve(tempAuditDir, filePath);
+    const auditFileAbs = path.resolve(tempAuditDir, cleanPath);
     if (fs.existsSync(auditFileAbs) && fs.statSync(auditFileAbs).isFile()) {
       try {
         return fs.readFileSync(auditFileAbs, 'utf-8');
@@ -583,7 +642,7 @@ ${explanation}
     }
 
     // 2. Check local workspace
-    const localAbs = path.resolve(process.cwd(), filePath);
+    const localAbs = path.resolve(process.cwd(), cleanPath);
     if (fs.existsSync(localAbs) && fs.statSync(localAbs).isFile()) {
       try {
         return fs.readFileSync(localAbs, 'utf-8');

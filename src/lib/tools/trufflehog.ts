@@ -28,12 +28,16 @@ export async function runTruffleHogGit(
 
     let normalizedUrl = repoUrl.trim();
     if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://') && !normalizedUrl.startsWith('git@')) {
-      normalizedUrl = `https://${normalizedUrl}`;
+      if (/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(normalizedUrl)) {
+        normalizedUrl = `https://github.com/${normalizedUrl}`;
+      } else {
+        normalizedUrl = `https://${normalizedUrl}`;
+      }
     }
 
     const trufflehog = spawn(
       trufflehogPath,
-      ['git', normalizedUrl, '--json', '--no-update'],
+      ['git', normalizedUrl, '--json', '--no-update', '--max-depth=50', '--force-skip-binaries'],
       { stdio: ['ignore', 'pipe', 'pipe'] }
     );
 
@@ -112,7 +116,7 @@ export async function runTruffleHogFilesystem(
 
     const trufflehog = spawn(
       trufflehogPath,
-      ['filesystem', directoryPath, '--json', '--no-update'],
+      ['filesystem', directoryPath, '--json', '--no-update', '--force-skip-binaries'],
       { stdio: ['ignore', 'pipe', 'pipe'] }
     );
 

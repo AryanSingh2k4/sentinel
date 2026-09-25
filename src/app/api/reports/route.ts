@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/agents/base';
 import { createClient } from '@/lib/supabase/server';
+import { resolveScanTarget } from '@/lib/utils/target-resolver';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +35,30 @@ export async function GET() {
 
     if (error) throw error;
 
-    return NextResponse.json({ reports: reports || [] });
+    const normalizedReports = (reports || []).map((r) => {
+      const resolved = resolveScanTarget(
+        r.scans ? { ...r.scans, summary: r.summary } : { summary: r.summary },
+        r.title
+      );
+      return {
+        ...r,
+        target: resolved.display,
+        target_raw: resolved.raw,
+        target_type: resolved.targetType,
+        scans: r.scans
+          ? {
+              ...r.scans,
+              target: resolved.display,
+              targets: {
+                domain: resolved.display,
+                base_url: resolved.baseUrl,
+              },
+            }
+          : null,
+      };
+    });
+
+    return NextResponse.json({ reports: normalizedReports });
   } catch (error: any) {
     console.error('Failed to list reports:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

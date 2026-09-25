@@ -1,6 +1,9 @@
 version: '3.8'
 
 services:
+  # -------------------------------------------------------------------------
+  # 1. Redis Message Broker & State Store
+  # -------------------------------------------------------------------------
   redis:
     image: redis:7-alpine
     container_name: sentinel-redis
@@ -10,9 +13,64 @@ services:
     volumes:
       - redis_data:/data
 
-  sentinel:
-    build: .
-    container_name: sentinel-app
+  # -------------------------------------------------------------------------
+  # 2. Web Attack Worker (Katana, HTTPx, Nuclei) - Capped at 1 GB RAM
+  # -------------------------------------------------------------------------
+  web-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.web-worker
+    container_name: sentinel-web-worker
+    restart: unless-stopped
+    mem_limit: 1024m
+    cpus: 1.0
+    environment:
+      - NODE_ENV=production
+      - WORKER_ROLE=web
+      - REDIS_URL=redis://redis:6379
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - LLM_MODEL=${LLM_MODEL}
+    depends_on:
+      - redis
+
+  # -------------------------------------------------------------------------
+  # 3. Git Audit & Remediation Worker (Git, TruffleHog, SAST, PRs) - Capped at 1 GB RAM
+  # -------------------------------------------------------------------------
+  git-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.git-worker
+    container_name: sentinel-git-worker
+    restart: unless-stopped
+    mem_limit: 1024m
+    cpus: 1.0
+    environment:
+      - NODE_ENV=production
+      - WORKER_ROLE=git
+      - REDIS_URL=redis://redis:6379
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - LLM_MODEL=${LLM_MODEL}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_PAT=${GITHUB_PAT}
+    depends_on:
+      - redis
+
+  # -------------------------------------------------------------------------
+  # 4. Next.js Web Application & Dashboard (Port 3000)
+  # -------------------------------------------------------------------------
+  sentinel-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentinel-web
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -26,6 +84,8 @@ services:
       - OPENAI_BASE_URL=${OPENAI_BASE_URL}
       - LLM_MODEL=${LLM_MODEL}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_PAT=${GITHUB_PAT}
+      - ENFORCE_AUTH=${ENFORCE_AUTH:-false}
     depends_on:
       - redis
 

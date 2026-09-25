@@ -13,7 +13,11 @@ export class SecretAgent extends BaseAgent {
 
       let targetUrl = this.context.target.trim();
       if (!targetUrl.startsWith('http') && !targetUrl.startsWith('git@')) {
-        targetUrl = `https://${targetUrl}`;
+        if (/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(targetUrl)) {
+          targetUrl = `https://github.com/${targetUrl}`;
+        } else {
+          targetUrl = `https://${targetUrl}`;
+        }
       }
 
       const tempDir = path.join(os.tmpdir(), `sentinel-audit-${this.context.scanId}`);

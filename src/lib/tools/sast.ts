@@ -38,7 +38,7 @@ const SAST_RULES: SASTRule[] = [
     name: 'SQL Injection via String Concatenation/Interpolation',
     cwe: 'CWE-89',
     severity: 'critical',
-    pattern: /(?:query|execute|raw|select|find|where)\s*\(\s*(?:`[^`]*\$\{[^}]+\}[^`]*`|["'][^"']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)[^"']*["']\s*\+\s*[a-zA-Z0-9_.]+|\b[a-zA-Z0-9_.]+\s*\+\s*["'][^"']*(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)[^"']*["'])/i,
+    pattern: /(?:(?:query|execute|raw|select|find|where)\s*\(\s*(?:`[^`]*\$\{[^}]+\}[^`]*`|(["'])(?:(?!\1)[\s\S])*\b(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)\b(?:(?!\1)[\s\S])*\1\s*\+\s*[a-zA-Z0-9_.]+|\b[a-zA-Z0-9_.]+\s*\+\s*(["'])(?:(?!\2)[\s\S])*\b(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)\b))|(?:const|let|var)\s+\w*\s*=\s*(["'])(?:(?!\3)[\s\S])*\b(?:SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)\b(?:(?!\3)[\s\S])*\3\s*\+\s*[a-zA-Z0-9_.]+/i,
     description: 'Dynamic SQL query constructed using raw string concatenation or template literal interpolation without parameterized bindings.',
     remediation: 'Use parameterized queries, prepared statements, or ORM parameterized methods (e.g. `db.query("SELECT * FROM users WHERE id = ?", [userId])`).',
   },
@@ -67,7 +67,7 @@ const SAST_RULES: SASTRule[] = [
     name: 'DOM XSS via innerHTML Assignment',
     cwe: 'CWE-79',
     severity: 'high',
-    pattern: /\b(?:innerHTML|outerHTML)\s*=\s*(?!['"][^'"]*['"])[^;\n]+/i,
+    pattern: /\b(?:innerHTML|outerHTML)\s*=\s*(?!['"]\s*['"])(?!['"][^'"]*['"])[a-zA-Z0-9_.]+/i,
     description: 'Direct assignment of dynamic values to `innerHTML` without sanitization permits stored or reflected Cross-Site Scripting.',
     remediation: 'Use `textContent`, `innerText`, or sanitize using DOMPurify before assignment.',
   },
@@ -78,7 +78,7 @@ const SAST_RULES: SASTRule[] = [
     name: 'Command Injection via child_process',
     cwe: 'CWE-78',
     severity: 'critical',
-    pattern: /(?:child_process\.)?(?:exec|execSync)\s*\(\s*(?:`[^`]*\$\{[^}]+\}[^`]*`|["'][^"']*["']\s*\+\s*[a-zA-Z0-9_.]+|[a-zA-Z0-9_.]+\s*\+)/i,
+    pattern: /(?:child_process\.)?(?:exec|execSync)\s*\(\s*(?:`[^`]*\$\{[^}]+\}[^`]*`|["'][^"']*["']\s*\+\s*[a-zA-Z0-9_.]+|[a-zA-Z0-9_.]+\s*\+)|(?:const|let|var)\s+\w*\s*=\s*["'][^"']*(?:ping|curl|wget|sh|bash|cat|rm|kill|ls)[^"']*["']\s*\+\s*[a-zA-Z0-9_.]+/i,
     description: 'Direct concatenation of dynamic input into a shell command allows arbitrary OS command injection.',
     remediation: 'Use `execFile` or `spawn` with an array of arguments, avoiding shell interpretation (`shell: false`).',
   },
@@ -107,7 +107,7 @@ const SAST_RULES: SASTRule[] = [
     name: 'Path Traversal / Arbitrary File Read',
     cwe: 'CWE-22',
     severity: 'high',
-    pattern: /fs\.(?:readFile|readFileSync|createReadStream)\s*\(\s*(?:path\.(?:join|resolve)\s*\([^)]*(?:req\.|params|query|body)|\`[^\`]*\$\{[^}]*(?:req\.|params|query|body))/i,
+    pattern: /(?:fs\.(?:readFile|readFileSync|createReadStream)|path\.(?:join|resolve))\s*\([^)]*(?:req\.|params|query|body|fileName|userInput|filePath)\b/i,
     description: 'Constructing filesystem paths directly from user input allows traversal sequences (e.g. `../../etc/passwd`).',
     remediation: 'Verify resolved path stays within an allowed base directory using `path.resolve` and `startsWith()`, or use an allowlist.',
   },
@@ -182,7 +182,11 @@ export async function cloneRepository(repoUrl: string, targetDir: string): Promi
   return new Promise((resolve) => {
     let cleanUrl = repoUrl.trim();
     if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://') && !cleanUrl.startsWith('git@')) {
-      cleanUrl = `https://${cleanUrl}`;
+      if (/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(cleanUrl)) {
+        cleanUrl = `https://github.com/${cleanUrl}`;
+      } else {
+        cleanUrl = `https://${cleanUrl}`;
+      }
     }
 
     // Embed GITHUB_TOKEN if available and it's a GitHub URL

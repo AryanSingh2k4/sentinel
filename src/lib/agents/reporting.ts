@@ -1,5 +1,6 @@
 import { BaseAgent, supabaseAdmin } from './base';
 import OpenAI from 'openai';
+import { resolveScanTarget } from '@/lib/utils/target-resolver';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'dummy_key',
@@ -54,7 +55,11 @@ export class ReportAgent extends BaseAgent {
             .in('candidate_finding_id', candidateIds)).data
         : [];
 
-      const targetDomain = scan?.targets?.domain || this.context.target || 'Target';
+      const resolved = resolveScanTarget({
+        ...scan,
+        target: this.context.target,
+      });
+      const targetDomain = resolved.display;
       const techList = (technologies || []).map(t => t.technology).join(', ') || 'Standard Web Stack';
       const totalCandidates = candidateFindings?.length || 0;
       const verifiedVulns = (confirmedFindings || []).filter(f => f.confirmed);

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/agents/base';
 import { createClient } from '@/lib/supabase/server';
+import { resolveScanTarget, isPlaceholder, parseGitTarget } from '@/lib/utils/target-resolver';
 
 export const dynamic = 'force-dynamic';
 
@@ -99,15 +100,20 @@ function parseSecretFinding(
     ? (confirmedData.confirmed ? 'CONFIRMED' : 'FALSE_POSITIVE')
     : 'PENDING';
 
-  // Target repo domain / URL
-  let repoTarget = 'Repository';
-  if (scan?.targets) {
-    if (Array.isArray(scan.targets) && scan.targets.length > 0) {
-      repoTarget = scan.targets[0].domain || scan.targets[0].base_url || 'Repository';
-    } else if (scan.targets.domain) {
-      repoTarget = scan.targets.domain;
-    } else if (scan.targets.base_url) {
-      repoTarget = scan.targets.base_url;
+  // Target repo domain / URL cleanly resolved
+  const resolved = resolveScanTarget(scan);
+  let repoTarget = resolved.display;
+  if (!repoTarget || isPlaceholder(repoTarget)) {
+    const gitInfo = parseGitTarget(finding.reasoning);
+    if (gitInfo.isGit) {
+      repoTarget = gitInfo.fullName;
+    } else {
+      const match = finding.reasoning?.match(/(?:github\.com|gitlab\.com|bitbucket\.org)\/([^\/\s]+)\/([^\/\s#?]+)/i);
+      if (match) {
+        repoTarget = `${match[1]}/${match[2].replace(/\.git$/, '')}`;
+      } else {
+        repoTarget = scan?.id ? `Scan #${scan.id.slice(0, 8)}` : 'Audited Codebase';
+      }
     }
   }
 
@@ -250,32 +256,17 @@ export async function GET() {
     const gitScans = (scans || []).filter((scan: any) => {
       if (scanIdsWithSecrets.has(scan.id)) return true;
       if (scan.status === 'SECRETS' || scan.status === 'SECRET_SCAN') return true;
-
-      let targetDomain = '';
-      if (scan.targets) {
-        if (Array.isArray(scan.targets) && scan.targets.length > 0) {
-          targetDomain = scan.targets[0].domain || scan.targets[0].base_url || '';
-        } else if (scan.targets.domain) {
-          targetDomain = scan.targets.domain;
-        } else if (scan.targets.base_url) {
-          targetDomain = scan.targets.base_url;
-        }
-      }
-      return isGitTarget(targetDomain);
+      const resolved = resolveScanTarget(scan);
+      return resolved.targetType === 'git' || isGitTarget(resolved.raw);
     });
 
     // 7. Calculate metrics
     const uniqueRepoTargets = new Set<string>();
     gitScans.forEach((scan: any) => {
-      let domain = '';
-      if (scan.targets) {
-        if (Array.isArray(scan.targets) && scan.targets.length > 0) {
-          domain = scan.targets[0].domain || scan.targets[0].base_url || '';
-        } else if (scan.targets.domain) {
-          domain = scan.targets.domain;
-        }
+      const resolved = resolveScanTarget(scan);
+      if (resolved.display && !isPlaceholder(resolved.display)) {
+        uniqueRepoTargets.add(resolved.display);
       }
-      if (domain) uniqueRepoTargets.add(domain);
     });
     const totalRepositoriesAudited = uniqueRepoTargets.size > 0 ? uniqueRepoTargets.size : gitScans.length;
 
@@ -294,22 +285,14 @@ export async function GET() {
     // Breakdown by detector
     const detectorBreakdown: Record<string, number> = {};
     secretsInventory.forEach((s) => {
-      const d = s.detector || 'Unknown';
+      const d = s.detector || 'Pattern Heuristic';
       detectorBreakdown[d] = (detectorBreakdown[d] || 0) + 1;
     });
 
     // 8. Build Git Scan History
     const scanHistory = gitScans.map((scan: any) => {
-      let domain = 'Unknown Target';
-      if (scan.targets) {
-        if (Array.isArray(scan.targets) && scan.targets.length > 0) {
-          domain = scan.targets[0].domain || scan.targets[0].base_url || 'Unknown Target';
-        } else if (scan.targets.domain) {
-          domain = scan.targets.domain;
-        } else if (scan.targets.base_url) {
-          domain = scan.targets.base_url;
-        }
-      }
+      const resolved = resolveScanTarget(scan);
+      const domain = resolved.display;
 
       const scanSecrets = secretsInventory.filter((s) => s.scanId === scan.id);
       const verifiedCount = scanSecrets.filter((s) => s.verifiedLive && !s.isFalsePositive).length;
@@ -317,6 +300,8 @@ export async function GET() {
       return {
         id: scan.id,
         target: domain,
+        target_raw: resolved.raw,
+        target_type: 'git',
         status: scan.status || 'QUEUED',
         started_at: scan.started_at,
         completed_at: scan.completed_at,

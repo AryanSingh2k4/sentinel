@@ -16,23 +16,28 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Navbar } from '@/components/Navbar';
+import { resolveScanTarget } from '@/lib/utils/target-resolver';
 
 interface ReportListItem {
   id: string;
   scan_id: string;
   title: string;
   summary: string;
+  target?: string;
+  target_raw?: string;
+  target_type?: 'web' | 'git';
   created_at: string;
   scans: {
     id: string;
     status: string;
+    target?: string;
     started_at: string;
     completed_at: string;
     targets: {
       domain: string;
       base_url: string;
-    } | Array<{ domain: string; base_url: string }>;
-  };
+    } | Array<{ domain: string; base_url: string }> | null;
+  } | null;
 }
 
 export default function ReportsListPage() {
@@ -104,10 +109,8 @@ export default function ReportsListPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {reports.map((r) => {
-              const domainName =
-                (Array.isArray(r.scans?.targets)
-                  ? r.scans?.targets?.[0]?.domain
-                  : (r.scans?.targets as any)?.domain) || 'Target Application';
+              const resolved = resolveScanTarget(r.scans || r, r.title);
+              const domainName = resolved.display;
 
               // Sanitize any thought block in summary
               const cleanSummary = (r.summary || 'Security assessment completed.')

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/agents/base';
 import { createClient } from '@/lib/supabase/server';
+import { resolveScanTarget } from '@/lib/utils/target-resolver';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,7 @@ export async function GET(
         status,
         started_at,
         completed_at,
+        profile,
         targets ( domain, base_url )
       `)
       .eq('id', scanId)
@@ -47,7 +49,7 @@ export async function GET(
       .eq('scan_id', scanId)
       .order('created_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     // 3. Fetch technologies
     const { data: technologies } = await supabaseAdmin
@@ -89,7 +91,21 @@ export async function GET(
           .order('created_at', { ascending: false })).data
       : [];
 
-    const targetDomain = scan.targets?.domain || 'Unknown Target';
+    // 6b. Fetch execution events for robust target resolution & telemetry
+    const { data: scanEvents } = await supabaseAdmin
+      .from('events')
+      .select('payload')
+      .eq('scan_id', scanId)
+      .order('created_at', { ascending: true })
+      .limit(20);
+
+    const resolved = resolveScanTarget({
+      ...scan,
+      title: report?.title,
+      summary: report?.summary,
+      events: scanEvents,
+    });
+    const targetDomain = resolved.display;
     const verifiedVulnerabilities = (confirmedFindings || []).filter(f => f.confirmed);
     const falsePositives = (confirmedFindings || []).filter(f => f.confirmed === false);
 
@@ -109,14 +125,23 @@ export async function GET(
       .order('created_at', { ascending: false })
       .limit(1);
 
-    const patches = patchEvents && patchEvents.length > 0 ? (patchEvents[0].payload as any)?.patches || [] : [];
+    let patches: any[] = [];
+    if (patchEvents && patchEvents.length > 0) {
+      let p = patchEvents[0].payload;
+      if (typeof p === 'string') {
+        try {
+          p = JSON.parse(p);
+        } catch {}
+      }
+      patches = (p as any)?.patches || (Array.isArray(p) ? p : []);
+    }
 
     const reportPayload = {
       meta: {
         reportId: report?.id || null,
         scanId: scan.id,
         target: targetDomain,
-        baseUrl: scan.targets?.base_url || `https://${targetDomain}`,
+        baseUrl: scan.targets?.base_url || resolved.baseUrl,
         status: scan.status,
         startedAt: scan.started_at,
         completedAt: scan.completed_at,
@@ -141,10 +166,13 @@ export async function GET(
 
     const url = new URL(request.url);
     if (url.searchParams.get('download') === 'json') {
+      const safeFilename = (targetDomain || 'report')
+        .replace(/^https?:\/\//i, '')
+        .replace(/[^a-zA-Z0-9._-]/g, '_');
       return new NextResponse(JSON.stringify(reportPayload, null, 2), {
         headers: {
           'Content-Type': 'application/json',
-          'Content-Disposition': `attachment; filename="sentinel-report-${targetDomain}-${scanId.slice(0, 8)}.json"`,
+          'Content-Disposition': `attachment; filename="sentinel-report-${safeFilename}-${scanId.slice(0, 8)}.json"`,
         },
       });
     }

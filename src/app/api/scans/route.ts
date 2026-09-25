@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { scanQueue } from '@/lib/queue/bull';
+import { scanQueue, webQueue, gitQueue } from '@/lib/queue/bull';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/agents/base';
 import { parseGitTarget } from '@/lib/utils/target-resolver';
@@ -98,10 +98,12 @@ export async function POST(req: Request) {
 
     // 3. Initialize the BullMQ State Machine based on target type
     const initialStep = targetType === 'git' ? 'secrets' : 'recon';
-    await scanQueue.add(initialStep, {
+    const targetQueue = targetType === 'git' ? gitQueue : webQueue;
+    await targetQueue.add(initialStep, {
       scanId: scan.id,
       target,
       step: initialStep,
+      targetType,
     });
 
     return NextResponse.json({ 

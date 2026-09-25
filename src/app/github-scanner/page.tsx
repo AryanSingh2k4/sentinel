@@ -40,6 +40,7 @@ import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Navbar } from '@/components/Navbar';
 import { CustomDropdown } from '@/components/CustomDropdown';
+import { formatTargetDisplay } from '@/lib/utils/target-resolver';
 
 interface SecretItem {
   id: string;
@@ -629,7 +630,7 @@ export default function GitHubScannerPage() {
                               <div className="flex items-center gap-1.5 text-muted-foreground">
                                 <GitBranch className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                                 <span className="truncate font-mono text-[12px]" title={secret.repoTarget}>
-                                  {secret.repoTarget.replace(/^https?:\/\/(github\.com\/)?/, '')}
+                                  {formatTargetDisplay(secret.repoTarget, { shortGit: true })}
                                 </span>
                               </div>
                             </td>
@@ -819,7 +820,7 @@ export default function GitHubScannerPage() {
                               <div className="flex items-center gap-1.5 text-foreground font-mono text-[12px] truncate">
                                 <GitBranch className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                                 <span className="truncate" title={scan.target}>
-                                  {scan.target}
+                                  {formatTargetDisplay(scan.target, { shortGit: true })}
                                 </span>
                               </div>
                             </td>
@@ -978,7 +979,7 @@ export default function GitHubScannerPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
                 <div className="p-3 bg-secondary border border-border rounded-[8px]">
                   <span className="text-muted-foreground text-[11px] block font-mono">REPOSITORY</span>
-                  <span className="font-mono text-foreground break-all font-medium">{selectedSecret.repoTarget}</span>
+                  <span className="font-mono text-foreground break-all font-medium">{formatTargetDisplay(selectedSecret.repoTarget)}</span>
                 </div>
 
                 <div className="p-3 bg-secondary border border-border rounded-[8px]">

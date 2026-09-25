@@ -19,14 +19,19 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Navbar } from '@/components/Navbar';
+import { resolveScanTarget } from '@/lib/utils/target-resolver';
 
 interface ScanTarget {
   domain?: string;
+  base_url?: string;
 }
 
 interface Scan {
   id: string;
   status: string;
+  target?: string;
+  target_raw?: string;
+  target_type?: 'web' | 'git';
   targets?: ScanTarget | ScanTarget[] | null;
 }
 
@@ -241,14 +246,8 @@ export default function Dashboard() {
                     <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground text-[13px]">No active scans found.</td></tr>
                   )}
                   {scans.map((scan) => {
-                    let domainName = 'Unknown Target';
-                    if (scan.targets) {
-                      if (Array.isArray(scan.targets)) {
-                        domainName = scan.targets[0]?.domain || 'Unknown Target';
-                      } else if (scan.targets.domain) {
-                        domainName = scan.targets.domain;
-                      }
-                    }
+                    const resolved = resolveScanTarget(scan);
+                    const domainName = resolved.display;
 
                     return (
                       <tr key={scan.id} className="hover:bg-accent/40 transition-colors">

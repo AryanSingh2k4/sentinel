@@ -29,6 +29,7 @@ import {
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Navbar } from '@/components/Navbar';
 import { MonacoDiffViewer, PatchItem } from '@/components/MonacoDiffViewer';
+import { formatTargetDisplay } from '@/lib/utils/target-resolver';
 
 interface ReportData {
   meta: {
@@ -262,7 +263,7 @@ export default function ReportPage() {
                 </span>
               </div>
               <h1 className="text-[28px] md:text-[34px] font-serif font-normal tracking-tight text-foreground">
-                {meta.target}
+                {formatTargetDisplay(meta.target)}
               </h1>
               <p className="text-[14px] text-muted-foreground mt-1 flex items-center gap-2">
                 <Globe className="h-3.5 w-3.5 text-muted-foreground" />

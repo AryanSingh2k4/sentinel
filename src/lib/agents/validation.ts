@@ -43,9 +43,11 @@ Severity: ${finding.severity}
 Raw Output / Reasoning:
 ${finding.reasoning}
 
-Analyze the URL, the finding type, and the extracted data. 
-- If the finding is "Default Login" on a public third-party social media page, it is a FALSE POSITIVE.
-- If the finding is an exposed secret, database credential, or private API key exposed in client-side frontend code or assets, it is a REAL security finding (is_false_positive: false) unless it is explicitly an inert non-secret placeholder.
+Triage Guidelines:
+1. Hardcoded secrets, API keys, tokens (Stripe, AWS, JWT, GitHub, DB passwords, etc.) found in git repository files or client bundles are ALWAYS REAL SECURITY FINDINGS (is_false_positive: false). Even if comments say 'test', 'demo', or 'intentional', committing credentials or dummy production keys to source repositories violates credential hygiene policies and must be flagged for remediation.
+2. Code vulnerabilities like SQL Injection, Command Injection (exec/spawn), Path Traversal, SSRF, or DOM XSS in server route handlers or scripts are ALWAYS REAL SECURITY FINDINGS (is_false_positive: false).
+3. Benign DOM operations (e.g. setting an empty string like innerHTML = '') or generic informational templates are FALSE POSITIVES (is_false_positive: true).
+4. If the finding is "Default Login" on a public third-party social media page, it is a FALSE POSITIVE (is_false_positive: true).
 
 Respond with ONLY a JSON object in this exact format:
 {
@@ -64,8 +66,9 @@ Respond with ONLY a JSON object in this exact format:
           let content = response.choices[0].message.content;
           if (!content) continue;
 
-          // Extract JSON block using regex to bypass <thought> blocks or markdown
-          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          // Strip <thought> tags from reasoning models first, then extract JSON block
+          const cleanContent = content.replace(/<thought>[\s\S]*?<\/thought>/gi, '').trim();
+          const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
           if (!jsonMatch) {
             console.error(`Failed to find JSON block in finding ${finding.id}: ${content.substring(0, 50)}...`);
             continue;

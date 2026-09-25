@@ -1,0 +1,39 @@
+# =========================================================================
+# Sentinel AI - Git Code Audit & Auto-Remediation Worker
+# Optimized for Git Scans (TruffleHog, SAST Engine, AST Sandbox, GitHub PRs)
+# Lightweight & isolated: ~260 MB uncompressed, memory capped at 1 GB
+# =========================================================================
+
+FROM node:20-bookworm-slim
+
+WORKDIR /app
+
+# Install git and essential certs
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    tar \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download only TruffleHog (does not need Katana, HTTPx, or Nuclei)
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+      curl -sL https://github.com/trufflesecurity/trufflehog/releases/download/v3.88.2/trufflehog_3.88.2_linux_amd64.tar.gz -o trufflehog.tar.gz && \
+      tar -xzf trufflehog.tar.gz trufflehog && mv trufflehog /usr/local/bin/ && rm trufflehog.tar.gz; \
+    fi && \
+    chmod +x /usr/local/bin/*
+
+# Copy package dependencies
+COPY package*.json tsconfig.json ./
+RUN npm ci
+
+# Copy worker application source
+COPY worker.ts ./
+COPY src/ ./src/
+
+ENV NODE_ENV=production
+ENV WORKER_ROLE=git
+
+# Run git worker (listens to git-scan-engine queue)
+CMD ["npx", "tsx", "worker.ts"]
